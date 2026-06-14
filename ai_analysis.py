@@ -33,6 +33,7 @@ class MarketAnalyzer:
         for name, info in portfolio_data.items():
             history_str = ", ".join([f"{d}: {p}" for d, p in info.get('history', {}).items()])
             portfolio_summary += f"- {name}: 현재가 {info['price']} (평단 {info['avg_price']}), 수익률 {info['roi']}%, 평가손익 {info['profit_loss']}원\n"
+            portfolio_summary += f"  [기술적 지표]: RSI({info.get('rsi')}), MACD({info.get('macd')}), Signal({info.get('macd_signal')})\n"
             portfolio_summary += f"  [최근 1개월 가격 데이터]: {history_str}\n"
             total_deposit += info.get('deposit', 0)
             total_value += info.get('current_value', 0)

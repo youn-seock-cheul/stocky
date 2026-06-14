@@ -56,17 +56,36 @@ class MarketDataCollector:
                 ticker = item["ticker"] if is_portfolio else item
                 try:
                     t = yf.Ticker(ticker)
-                    data = t.history(period=f"{days}d")
+                    # RSI, MACD 등 지표 계산을 위해 충분한 데이터(60일) 수집
+                    data = t.history(period="60d")
                     
                     if not data.empty and len(data) >= 2:
                         current_price = float(data['Close'].iloc[-1])
                         prev_price = float(data['Close'].iloc[-2])
                         change_pct = (current_price - prev_price) / prev_price * 100
                         
+                        # RSI 계산 (14일 기준)
+                        delta = data['Close'].diff()
+                        up = delta.clip(lower=0)
+                        down = -1 * delta.clip(upper=0)
+                        ema_up = up.ewm(com=13, adjust=False).mean()
+                        ema_down = down.ewm(com=13, adjust=False).mean()
+                        rs = ema_up / ema_down
+                        rsi = 100 - (100 / (1 + rs))
+
+                        # MACD 계산 (12, 26, 9)
+                        exp12 = data['Close'].ewm(span=12, adjust=False).mean()
+                        exp26 = data['Close'].ewm(span=26, adjust=False).mean()
+                        macd = exp12 - exp26
+                        macd_signal = macd.ewm(span=9, adjust=False).mean()
+
                         entry = {
                             "price": round(float(current_price), 2),
                             "change_pct": round(float(change_pct), 2),
-                            "history": {d.strftime('%Y-%m-%d'): round(float(p), 2) for d, p in data['Close'].to_dict().items()}
+                            "rsi": round(float(rsi.iloc[-1]), 2),
+                            "macd": round(float(macd.iloc[-1]), 2),
+                            "macd_signal": round(float(macd_signal.iloc[-1]), 2),
+                            "history": {d.strftime('%Y-%m-%d'): round(float(p), 2) for d, p in data['Close'].tail(days).to_dict().items()}
                         }
 
                         if is_portfolio:
@@ -126,12 +145,15 @@ class MarketDataCollector:
                 future_x = np.arange(len(norm_prices), len(norm_prices) + 24)
                 forecast = slope * future_x + intercept
                 
+                # 추세에 따른 신뢰 구간 색상 결정 (상승: 빨강, 하락: 파랑)
+                shadow_color = 'red' if slope > 0 else 'blue'
+
                 # 과거 데이터 및 예측 데이터(점선) 플롯
                 p = plt.plot(range(len(norm_prices)), norm_prices, label=f"{name}", alpha=0.7)
                 plt.plot(future_x, forecast, linestyle='--', color=p[0].get_color(), alpha=0.8)
                 
-                # 신뢰 구간 (Shadow) 추가 - 2배 표준편차 범위 (약 95% 신뢰구간)
-                plt.fill_between(future_x, forecast - 2*std_dev, forecast + 2*std_dev, color=p[0].get_color(), alpha=0.15)
+                # 신뢰 구간 (Shadow) 추가 - 추세별 색상 적용
+                plt.fill_between(future_x, forecast - 2*std_dev, forecast + 2*std_dev, color=shadow_color, alpha=0.15)
         
         plt.title("Portfolio Trend & 24h Prediction (Normalized %)")
         plt.xlabel("Time (Hourly Intervals)")
