@@ -11,7 +11,9 @@ class TelegramNotifier:
         payload = {
             "chat_id": self.chat_id,
             "text": text,
-            "parse_mode": "Markdown",
-            "reply_markup": reply_markup
+            "parse_mode": "HTML"
         }
+        if reply_markup:
+            payload["reply_markup"] = reply_markup
+            
         return requests.post(url, json=payload)

@@ -65,20 +65,22 @@ def run_daily_report():
             }
 
             # 3. 요약본과 버튼 전송
-            summary_text = f"📌 **{report_title} 핵심 요약 ({now})**\n\n{summary.strip()}"
+            summary_text = f"📌 <b>{report_title} 핵심 요약 ({now})</b>\n\n{summary.strip()}"
             response = notifier.send_message(summary_text, reply_markup=reply_markup)
         except Exception as e:
             print(f"⚠️ Telegraph 업로드 실패: {e}")
             # 실패 시 기존처럼 텍스트로 전체 전송
-            report_text = f"📊 **{report_title} 리포트 ({now})**\n\n{analysis_result}"
+            report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{analysis_result}"
             response = notifier.send_message(report_text)
     else:
         # 구분자가 없을 경우 전체 전송 (예외 처리)
-        report_text = f"📊 **{report_title} 리포트 ({now})**\n\n{analysis_result}"
+        report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{analysis_result}"
         response = notifier.send_message(report_text)
 
     if response.status_code == 200:
         print("✅ 리포트 전송 완료!")
+    else:
+        print(f"❌ 전송 실패: {response.status_code} - {response.text}")
 
 if __name__ == "__main__":
     run_daily_report()
