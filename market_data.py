@@ -163,6 +163,32 @@ class MarketDataCollector:
 
         return generated_files
 
+    def generate_expert_dashboard(self, output_path="expert_dashboard.png"):
+        """주요 지수들을 하나의 화면에 모은 전문가용 대시보드 생성"""
+        if not HAS_MATPLOTLIB: return
+        
+        fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+        fig.suptitle(f"Global Market Expert Dashboard ({pd.Timestamp.now().strftime('%Y-%m-%d')})", fontsize=16)
+        
+        indices_to_plot = [("^GSPC", "S&P 500"), ("^IXIC", "Nasdaq"), ("^KS11", "KOSPI"), ("USDKRW=X", "USD/KRW")]
+        
+        for i, (ticker, title) in enumerate(indices_to_plot):
+            ax = axes[i//2, i%2]
+            data = yf.Ticker(ticker).history(period="1mo")
+            if not data.empty:
+                color = 'tab:red' if data['Close'].iloc[-1] > data['Close'].iloc[0] else 'tab:blue'
+                ax.plot(data.index, data['Close'], color=color)
+                ax.set_title(title, fontweight='bold')
+                ax.grid(True, alpha=0.3)
+                # 상하단 여백 조정
+                y_min, y_max = data['Close'].min(), data['Close'].max()
+                ax.set_ylim(y_min * 0.98, y_max * 1.02)
+
+        plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+        plt.savefig(output_path, dpi=150)
+        plt.close()
+        return output_path
+
     def generate_stock_trend_charts(self, output_dir="charts"):
         """각 종목별 트렌드와 매매 시점을 비교하는 차트 생성"""
         if not HAS_MATPLOTLIB: return []
@@ -200,16 +226,16 @@ class MarketDataCollector:
             generated_files.append(path)
         return generated_files
 
-    def generate_hourly_forecast_charts(self, output_dir="forecasts"):
-        """한 달간의 데이터를 기반으로 향후 24시간 추세 예측 그래프 생성"""
+    def generate_30m_forecast_charts(self, output_dir="forecasts"):
+        """30분 단위 데이터를 기반으로 과거 추세와 향후 24시간 예측 그래프 생성"""
         if not HAS_MATPLOTLIB: return []
         if not os.path.exists(output_dir): os.makedirs(output_dir)
         
         generated_files = []
         for name, item in self.my_portfolio.items():
             ticker = item["ticker"]
-            # 최근 1개월간의 시간별 데이터 수집
-            data = yf.download(ticker, period="1mo", interval="1h", progress=False)
+            # 30분 단위 데이터 수집 (최근 1개월 내 가능)
+            data = yf.download(ticker, period="1mo", interval="30m", progress=False)
             if data.empty: continue
 
             # 추세 분석 (선형 회귀)
@@ -217,22 +243,24 @@ class MarketDataCollector:
             x = np.arange(len(prices))
             slope, intercept = np.polyfit(x, prices, 1)
             
-            # 향후 24시간 예측 데이터 생성
-            future_x = np.arange(len(prices), len(prices) + 24)
+            # 향후 24시간 예측 (30분 단위이므로 48개 포인트)
+            future_x = np.arange(len(prices), len(prices) + 48)
             forecast_values = slope * future_x + intercept
             
-            # 미래 시간 인덱스 생성
+            # 미래 시간 인덱스 생성 (30분 단위)
             last_time = data.index[-1]
-            future_dates = [last_time + pd.Timedelta(hours=i+1) for i in range(24)]
+            future_dates = [last_time + pd.Timedelta(minutes=30*(i+1)) for i in range(48)]
 
             plt.figure(figsize=(12, 6))
-            # 과거 데이터 플롯
-            plt.plot(data.index, prices, label="Historical (Last 1mo)", color='steelblue', alpha=0.8)
-            # 예측 데이터 플롯
-            plt.plot(future_dates, forecast_values, label="Predicted Trend (Next 24h)", 
+            # 과거 데이터 (최근 2일치만 강조해서 보여줌)
+            recent_data = data.tail(96) # 30분 * 96 = 2일
+            plt.plot(recent_data.index, recent_data['Close'], label="Historical (30m)", color='black', linewidth=1)
+            
+            # 예측 데이터
+            plt.plot(future_dates, forecast_values, label="30m Forecast (Next 24h)", 
                      color='orange', linestyle='--', linewidth=2)
             
-            plt.title(f"{name} ({ticker}) 24-Hour Price Movement Forecast")
+            plt.title(f"{name} ({ticker}) 30-Min Interval Strategy Chart")
             plt.xlabel("Time")
             plt.ylabel("Price")
             plt.legend()

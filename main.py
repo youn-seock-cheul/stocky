@@ -9,6 +9,7 @@ from telegraph import Telegraph
 
 def run_daily_report():
     # 1. 환경 변수 읽기 및 체크
+    # GitHub Secrets 또는 로컬 .env 환경에서 설정된 값을 가져옵니다.
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
     TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
@@ -20,28 +21,22 @@ def run_daily_report():
     print("1. 데이터 수집 및 시각화 시작...")
     collector = MarketDataCollector()
     
-    # 지수 차트 생성
-    chart_path = "chart.png"
-    collector.generate_chart(chart_path)
+    # [시각화] 전문가용 통합 대시보드 생성 (메인 요약 화면용)
+    dashboard_path = collector.generate_expert_dashboard()
     
-    # 포트폴리오 수익률 추이 차트 생성 (일간/월간)
+    # [시각화] 상세 정보 차트 생성 (앨범/미디어 그룹용)
     portfolio_charts = collector.generate_portfolio_charts()
+    trend_charts = collector.generate_stock_trend_charts()
+    forecast_charts = collector.generate_30m_forecast_charts()
         
-
-    # 이미지 기반 포트폴리오 업데이트 (balance.png 파일이 있을 경우)
+    # [비전] 이미지 기반 포트폴리오 업데이트 (balance.png 파일이 프로젝트 루트에 있을 경우)
     analyzer = MarketAnalyzer(GEMINI_API_KEY)
     if os.path.exists("balance.png"):
         print("📸 잔고 스크린샷 분석 중...")
         extracted_data = analyzer.extract_portfolio_from_image("balance.png")
         print(f"추출된 데이터: {extracted_data}")
 
-    # 각 종목별 트렌드 차트 생성
-    trend_charts = collector.generate_stock_trend_charts()
-
-    # 각 종목별 향후 24시간 예측 차트 생성
-    forecast_charts = collector.generate_hourly_forecast_charts()
-
-    # GitHub Actions 수동 입력값(매매 진단용) 확인
+    # [입력] GitHub Actions 수동 입력값(매매 진단용) 확인
     trade_ticker = os.getenv("TRADE_TICKER")
     trade_category = os.getenv("TRADE_CATEGORY")
     trade_action = os.getenv("TRADE_ACTION")
@@ -60,7 +55,7 @@ def run_daily_report():
                 "data": ticker_data
             }
 
-    # 시장 및 포트폴리오 데이터 수집
+    # [데이터] 시장 지수 및 포트폴리오 최신 데이터 수집
     market_data = collector.get_recent_data()
 
     # 2. 실행 모드 및 리포트 제목 결정
@@ -68,9 +63,9 @@ def run_daily_report():
         report_type = "trade_eval"
         report_title = f"💡 매매 전략 진단 ({trade_ticker})"
     elif len(sys.argv) > 1:
-        report_type = sys.argv[1] # 'opening' 또는 'closing'
+        report_type = sys.argv[1] # 'opening' (장전) 또는 'closing' (장마감)
     else:
-        # UTC 시간에 따라 자동으로 마감(06시 KST) 또는 개장(07:50 KST) 리포트 결정
+        # UTC 시간에 따라 자동으로 리포트 성격 결정 (21 UTC = 06시 KST)
         current_hour_utc = datetime.now(timezone.utc).hour
         report_type = "closing" if current_hour_utc == 21 else "opening"
         
@@ -78,40 +73,35 @@ def run_daily_report():
         report_title = "🇺🇸 미국 증시 마감" if report_type == "closing" else "🇰🇷 국내 증시 개장 전"
 
     # 텔레그램 HTML 파싱 에러 방지를 위한 헬퍼 함수
+    # AI가 생성한 텍스트 중 HTML 특수문자를 치환하되, 핵심 태그(b, pre)는 복구합니다.
     def safe_html(text):
         if not text: return ""
         return html.escape(text.strip()).replace("&lt;pre&gt;", "<pre>").replace("&lt;/pre&gt;", "</pre>").replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
 
     print("2. AI 분석 진행 중...")
-    analyzer.list_available_models()  # 디버깅용 모델 리스트 출력
+    analyzer.list_available_models()  # 사용 가능한 모델 목록 출력 (로그 확인용)
     analysis_result = analyzer.generate_analysis(market_data, report_type=report_type, trade_info=trade_info)
 
     print("3. 텔레그램 알림 전송...")
     now = datetime.now().strftime('%Y-%m-%d %H:%M')
     notifier = TelegramNotifier(TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)
 
-    # 생성된 모든 차트 전송 (지수 차트 + 포트폴리오 차트)
-    if os.path.exists(chart_path):
-        notifier.send_photo(chart_path)
+    # 3-1. 메인 전문가 대시보드 단독 전송 (첫 번째 알림)
+    if os.path.exists(dashboard_path):
+        notifier.send_photo(dashboard_path)
 
-    for p_chart in portfolio_charts:
-        if os.path.exists(p_chart):
-            notifier.send_photo(p_chart)
+    # 3-2. 모든 상세 차트들을 하나의 앨범(Media Group)으로 묶어서 전송 (알림 횟수 최소화)
+    detail_photos = portfolio_charts + trend_charts + forecast_charts
+    valid_photos = [p for p in detail_photos if os.path.exists(p)]
+    if valid_photos:
+        notifier.send_media_group(valid_photos)
 
-    for t_chart in trend_charts:
-        if os.path.exists(t_chart):
-            notifier.send_photo(t_chart)
-
-    for f_chart in forecast_charts:
-        if os.path.exists(f_chart):
-            notifier.send_photo(f_chart)
-
-    # 요약본과 상세본 분리 처리 (구분자 [SPLIT] 기준)
+    # 3-3. 요약본과 상세본 분리 처리 (구분자 [SPLIT] 기준)
     if "[SPLIT]" in analysis_result:
         summary, details = analysis_result.split("[SPLIT]", 1)
         
         try:
-            # Telegraph에 상세 내용 업로드
+            # Telegraph에 상세 분석 내용 업로드 (긴 텍스트 가독성 확보)
             telegraph = Telegraph()
             telegraph.create_account(short_name='Stocky')
             html_content = details.strip().replace('\n', '<br>')
@@ -122,7 +112,7 @@ def run_daily_report():
             )
             detail_url = telegraph_response['url']
 
-            # 인라인 키보드 버튼 구성
+            # 상세 보기 버튼 구성
             reply_markup = {
                 "inline_keyboard": [[
                     {"text": "📖 상세 분석 리포트 더보기", "url": detail_url}
@@ -138,12 +128,13 @@ def run_daily_report():
             report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{safe_html(analysis_result)}"
             response = notifier.send_message(report_text)
     else:
-        # 구분자가 없을 경우 전체 내용을 일반 메시지로 전송
+        # [SPLIT] 구분자가 없을 경우 전체 내용을 하나의 메시지로 전송
         report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{safe_html(analysis_result)}"
         response = notifier.send_message(report_text)
 
+    # 최종 결과 확인
     if response.status_code == 200:
-        print("✅ 리포트 전송 완료!")
+        print("✅ 모든 리포트 및 차트 전송 완료!")
     else:
         print(f"❌ 전송 실패: {response.status_code} - {response.text}")
 
