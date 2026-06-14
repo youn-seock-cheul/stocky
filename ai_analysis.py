@@ -1,10 +1,9 @@
-import google.generativeai as genai
+from google import genai
 
 class MarketAnalyzer:
     def __init__(self, api_key):
-        # Gemini API 설정
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        # 최신 Gemini SDK 클라이언트 설정
+        self.client = genai.Client(api_key=api_key)
 
     def generate_analysis(self, market_data, report_type="opening"):
         """수집된 데이터를 기반으로 AI 분석 리포트 생성"""
@@ -52,7 +51,7 @@ class MarketAnalyzer:
         """
 
         try:
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(model='gemini-1.5-flash', contents=prompt)
             return response.text
         except Exception as e:
             return f"AI 분석 중 오류가 발생했습니다: {e}"
