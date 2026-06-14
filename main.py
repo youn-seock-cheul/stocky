@@ -21,13 +21,9 @@ def run_daily_report():
     print("1. 데이터 수집 및 시각화 시작...")
     collector = MarketDataCollector()
     
-    # [시각화] 전문가용 통합 대시보드 생성 (메인 요약 화면용)
-    dashboard_path = collector.generate_expert_dashboard()
-    
-    # [시각화] 상세 정보 차트 생성 (앨범/미디어 그룹용)
-    portfolio_charts = collector.generate_portfolio_charts()
-    trend_charts = collector.generate_stock_trend_charts()
-    forecast_charts = collector.generate_30m_forecast_charts()
+    # 지수 비교 차트 생성
+    chart_path = "chart.png"
+    collector.generate_chart(chart_path)
         
     # [비전] 이미지 기반 포트폴리오 업데이트 (balance.png 파일이 프로젝트 루트에 있을 경우)
     analyzer = MarketAnalyzer(GEMINI_API_KEY)
@@ -86,15 +82,9 @@ def run_daily_report():
     now = datetime.now().strftime('%Y-%m-%d %H:%M')
     notifier = TelegramNotifier(TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)
 
-    # 3-1. 메인 전문가 대시보드 단독 전송 (첫 번째 알림)
-    if os.path.exists(dashboard_path):
-        notifier.send_photo(dashboard_path)
-
-    # 3-2. 모든 상세 차트들을 하나의 앨범(Media Group)으로 묶어서 전송 (알림 횟수 최소화)
-    detail_photos = portfolio_charts + trend_charts + forecast_charts
-    valid_photos = [p for p in detail_photos if os.path.exists(p)]
-    if valid_photos:
-        notifier.send_media_group(valid_photos)
+    # 3-1. 지수 비교 차트 전송
+    if os.path.exists(chart_path):
+        notifier.send_photo(chart_path)
 
     # 3-3. 요약본과 상세본 분리 처리 (구분자 [SPLIT] 기준)
     if "[SPLIT]" in analysis_result:

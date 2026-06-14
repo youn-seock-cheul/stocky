@@ -24,18 +24,3 @@ class TelegramNotifier:
         url = f"https://api.telegram.org/bot{self.token}/sendPhoto"
         with open(photo_path, 'rb') as photo:
             return requests.post(url, data={"chat_id": self.chat_id}, files={"photo": photo})
-
-    def send_media_group(self, photo_paths):
-        """여러 장의 사진을 하나의 앨범으로 전송 (알림 최소화)"""
-        url = f"https://api.telegram.org/bot{self.token}/sendMediaGroup"
-        media = []
-        files = {}
-        for i, path in enumerate(photo_paths):
-            name = f"photo{i}"
-            media.append({"type": "photo", "media": f"attach://{name}"})
-            files[name] = open(path, 'rb')
-        
-        payload = {"chat_id": self.chat_id, "media": json.dumps(media)}
-        res = requests.post(url, data=payload, files=files)
-        for f in files.values(): f.close()
-        return res

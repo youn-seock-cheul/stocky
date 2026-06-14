@@ -31,7 +31,9 @@ class MarketAnalyzer:
         total_value = 0
 
         for name, info in portfolio_data.items():
+            history_str = ", ".join([f"{d}: {p}" for d, p in info.get('history', {}).items()])
             portfolio_summary += f"- {name}: 현재가 {info['price']} (평단 {info['avg_price']}), 수익률 {info['roi']}%, 평가손익 {info['profit_loss']}원\n"
+            portfolio_summary += f"  [최근 1개월 가격 데이터]: {history_str}\n"
             total_deposit += info.get('deposit', 0)
             total_value += info.get('current_value', 0)
 
@@ -98,9 +100,10 @@ class MarketAnalyzer:
             1. **오늘의 장전 관전 포인트**: 개장 직후 가장 주목해야 할 핵심 변수.
             2. **한국 증시 예상 흐름**: 미국장 결과를 반영한 코스피/코스닥 시초가 분위기 예측.
             3. **보유 종목 실전 전략 (필수)**:
-               - **30분 단위 단기 전략**: 제공된 30분 단위 예측 그래프를 바탕으로, 오늘 중 가장 유리한 매수/매도 타임라인을 제시하세요.
-               - **잔고 기반 리스크 관리**: 현재 수익률과 투자 비중을 고려할 때, 언제 비중을 줄이거나 늘려야 할지 구체적 가격을 제안하세요.
-               - **주간/향후 전망**: 이번 주 지지선과 중장기적 관점의 목표 가치.
+               - **한 달간의 흐름 분석**: 제공된 1개월 가격 데이터를 기반으로 폭등/폭락 지점을 찾아내고, 당시의 시장 상황이나 이벤트를 추론하여 설명하세요.
+               - **상승/하락 확률 예측**: 현재 기술적 위치와 거시 환경을 고려해 향후 상승 또는 하락 가능성을 확률(%)로 제시하세요.
+               - **예상 매매 타이밍**: 현재 잔고 현황을 기준으로, 언제 매도하거나 추가 매수하는 것이 최선일지 구체적인 가격 수치를 포함하여 전략을 세우세요.
+               - **향후 전망**: 중장기적 관점에서의 투자 방향.
             4. **오늘의 주도 섹터**: 수급이 몰릴 것으로 예상되는 섹터 2개와 구체적 이유.
             """
 
@@ -121,7 +124,7 @@ class MarketAnalyzer:
         """
 
         # 시도할 모델 순서 (최신 모델 -> 안정화 모델)
-        models_to_try = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3.0-flash', 'gemini-3.5-flash']
+        models_to_try = ['gemini-3.5-flash', 'gemini-3.0-flash', 'gemini-2.5-flash', 'gemini-2.0-flash']
         
         for model_name in models_to_try:
             try:
