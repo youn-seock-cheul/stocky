@@ -83,7 +83,6 @@ class MarketAnalyzer:
         
         **중요 지시사항**:
         1. 보고서 시작 부분에 **'오늘의 핵심 요약'**을 3줄 이내로 작성하세요.
-        2. 요약 바로 아래에 시장 상황을 한눈에 볼 수 있는 **'마크다운 요약 표'**를 포함하세요.
         2. 요약 바로 아래에 시장 상황 요약 표를 작성하세요. 
            텔레그램 가독성을 위해 반드시 <pre> 태그로 표 전체를 감싸고, 내부 컬럼 간격을 공백으로 맞춰 정렬하세요.
            (예: <pre>| 지수 | 현재가 | 등락 |\n| KOSPI| 2,500 | +0.5%|</pre>)
@@ -93,7 +92,7 @@ class MarketAnalyzer:
         """
 
         # 시도할 모델 순서 (최신 모델 -> 안정화 모델)
-        models_to_try = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3.0-flash', 'gemini-3.5-flash']
+        models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash']
         
         for model_name in models_to_try:
             for attempt in range(2):  # 모델당 최대 2회 시도

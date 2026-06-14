@@ -55,7 +55,11 @@ def run_daily_report():
         current_hour_utc = datetime.now(timezone.utc).hour
         report_type = "closing" if current_hour_utc == 21 else "opening"
         
-    report_title = "🇺🇸 미국 증시 마감" if report_type == "closing" else "🇰🇷 국내 증시 개장 전"
+    if report_type != "trade_eval":
+        report_title = "🇺🇸 미국 증시 마감" if report_type == "closing" else "🇰🇷 국내 증시 개장 전"
+
+    def safe_html(text):
+        return html.escape(text.strip()).replace("&lt;pre&gt;", "<pre>").replace("&lt;/pre&gt;", "</pre>").replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
 
     print("2. AI 분석 진행 중...")
     analyzer = MarketAnalyzer(GEMINI_API_KEY)
@@ -88,16 +92,16 @@ def run_daily_report():
             }
 
             # 3. 요약본과 버튼 전송
-            summary_text = f"📌 <b>{report_title} 핵심 요약 ({now})</b>\n\n{html.escape(summary.strip())}"
+            summary_text = f"📌 <b>{report_title} 핵심 요약 ({now})</b>\n\n{safe_html(summary)}"
             response = notifier.send_message(summary_text, reply_markup=reply_markup)
         except Exception as e:
             print(f"⚠️ Telegraph 업로드 실패: {e}")
             # 실패 시 기존처럼 텍스트로 전체 전송
-            report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{html.escape(analysis_result)}"
+            report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{safe_html(analysis_result)}"
             response = notifier.send_message(report_text)
     else:
         # 구분자가 없을 경우 전체 전송 (예외 처리)
-        report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{html.escape(analysis_result)}"
+        report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{safe_html(analysis_result)}"
         response = notifier.send_message(report_text)
 
     if response.status_code == 200:
