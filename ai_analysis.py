@@ -54,4 +54,4 @@ class MarketAnalyzer:
             response = self.client.models.generate_content(model='gemini-1.5-flash', contents=prompt)
             return response.text
         except Exception as e:
-            return f"AI 분석 중 오류가 발생했습니다: {e}"
+            return f"AI 분석 중 오류가 발생했습니다 ({report_type}): {str(e)}"
