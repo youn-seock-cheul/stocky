@@ -64,6 +64,3 @@ jobs:
           TRADE_REASON: ${{ github.event.inputs.reason }}
         run: |
           python main.py
-
-        run: |
-          python main.py
