@@ -20,6 +20,9 @@ def run_daily_report():
 
     print("1. 데이터 수집 시작...")
     collector = MarketDataCollector()
+    # 차트 생성
+    chart_path = "chart.png"
+    collector.generate_chart(chart_path)
         
     # GitHub Actions 입력값 확인
     trade_ticker = os.getenv("TRADE_TICKER")

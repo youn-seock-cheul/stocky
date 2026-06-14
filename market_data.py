@@ -1,5 +1,6 @@
 import yfinance as yf
 import pandas as pd
+import matplotlib.pyplot as plt
 
 class MarketDataCollector:
     def __init__(self):
@@ -47,6 +48,25 @@ class MarketDataCollector:
             "indices": fetch_data(self.indices),
             "portfolio": fetch_data(self.my_portfolio)
         }
+
+    def generate_chart(self, output_path="chart.png"):
+        """주요 지수의 5일 흐름을 차트로 생성"""
+        plt.figure(figsize=(10, 6))
+        for name, ticker in self.indices.items():
+            if name == "USD_KRW": continue # 환율은 단위가 달라 제외
+            data = yf.Ticker(ticker).history(period="5d")
+            if not data.empty:
+                # 첫날 기준 변동률로 정규화
+                normalized = (data['Close'] / data['Close'].iloc[0] - 1) * 100
+                plt.plot(normalized.index.strftime('%m-%d'), normalized, label=name, marker='o')
+        
+        plt.title("Recent Market Trends (Normalized %)")
+        plt.xlabel("Date")
+        plt.ylabel("Change (%)")
+        plt.legend()
+        plt.grid(True)
+        plt.savefig(output_path)
+        plt.close()
 
     def get_specific_ticker_data(self, ticker):
         """특정 종목 한 개의 최신 데이터 수집"""

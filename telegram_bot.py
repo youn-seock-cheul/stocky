@@ -17,3 +17,9 @@ class TelegramNotifier:
             payload["reply_markup"] = reply_markup
             
         return requests.post(url, json=payload)
+
+    def send_photo(self, photo_path):
+        """텔레그램 사진 전송"""
+        url = f"https://api.telegram.org/bot{self.token}/sendPhoto"
+        with open(photo_path, 'rb') as photo:
+            return requests.post(url, data={"chat_id": self.chat_id}, files={"photo": photo})
