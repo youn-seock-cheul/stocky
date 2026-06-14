@@ -179,7 +179,7 @@ class MarketDataCollector:
                 }
             else:
                 print(f"⚠️ 이미지 분석에서 필수 정보 누락 또는 형식 오류: {item}")
-        if new_portfolio:
+        if updated_items_from_screenshot:
             # 기존 포트폴리오에 스크린샷에서 추출된 항목들을 병합 (업데이트 또는 추가)
             self.my_portfolio.update(updated_items_from_screenshot)
             self.save_portfolio()
