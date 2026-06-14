@@ -12,6 +12,11 @@ def run_daily_report():
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
     TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
+    # 환경 변수 체크
+    if not all([GEMINI_API_KEY, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
+        print("❌ 에러: 환경 변수(API 키 등)가 설정되지 않았습니다. GitHub Secrets 또는 로컬 환경 변수를 확인하세요.")
+        return
+
     print("1. 데이터 수집 시작...")
     collector = MarketDataCollector()
     market_data = collector.get_recent_data()

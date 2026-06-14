@@ -20,13 +20,14 @@ class MarketDataCollector:
         
         for name, ticker in self.tickers.items():
             try:
-                # 데이터 다운로드
-                data = yf.download(ticker, period=f"{days}d", interval="1d", progress=False)
+                # Ticker 객체를 사용하여 보다 안정적으로 데이터 수집
+                t = yf.Ticker(ticker)
+                data = t.history(period=f"{days}d")
                 
                 if not data.empty and len(data) >= 2:
-                    current_price = data['Close'].iloc[-1]
-                    prev_price = data['Close'].iloc[-2]
-                    change_pct = ((current_price - prev_price) / prev_price) * 100
+                    current_price = float(data['Close'].iloc[-1])
+                    prev_price = float(data['Close'].iloc[-2])
+                    change_pct = (current_price - prev_price) / prev_price * 100
                     
                     market_report[name] = {
                         "price": round(float(current_price), 2),
