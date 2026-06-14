@@ -11,12 +11,12 @@ on:
   workflow_dispatch: # 매매 분석 및 수동 실행
     inputs:
       category:
-        description: '투자 유형 (국내주식 / 해외 ETF / 해외 개인주식)'
+        description: '투자 유형 (국내주식 / 국내 ETF / 해외 개인주식)'
         required: false
         type: choice
         options:
           - '국내주식'
-          - '해외 ETF'
+          - '국내 ETF'
           - '해외 개인주식'
       action:
         description: '작업 선택 (매수 / 매도 / 신규진입)'
