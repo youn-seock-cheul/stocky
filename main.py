@@ -8,23 +8,26 @@ from telegram_bot import TelegramNotifier
 from telegraph import Telegraph
 
 def run_daily_report():
-    # API 키 및 설정 (환경 변수에서 읽어오도록 수정)
+    # 1. 환경 변수 읽기 및 체크
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
     TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-    # 환경 변수 체크
     if not all([GEMINI_API_KEY, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
         print("❌ 에러: 환경 변수(API 키 등)가 설정되지 않았습니다. GitHub Secrets 또는 로컬 환경 변수를 확인하세요.")
         return
 
-    print("1. 데이터 수집 시작...")
+    print("1. 데이터 수집 및 시각화 시작...")
     collector = MarketDataCollector()
-    # 차트 생성
+    
+    # 지수 차트 생성
     chart_path = "chart.png"
     collector.generate_chart(chart_path)
+    
+    # 포트폴리오 수익률 추이 차트 생성 (일간/월간)
+    portfolio_charts = collector.generate_portfolio_charts()
         
-    # GitHub Actions 입력값 확인
+    # GitHub Actions 수동 입력값(매매 진단용) 확인
     trade_ticker = os.getenv("TRADE_TICKER")
     trade_category = os.getenv("TRADE_CATEGORY")
     trade_action = os.getenv("TRADE_ACTION")
@@ -43,65 +46,78 @@ def run_daily_report():
                 "data": ticker_data
             }
 
+    # 시장 및 포트폴리오 데이터 수집
     market_data = collector.get_recent_data()
 
-    # 2. 실행 시간에 따른 리포트 성격 결정 (UTC 기준)
+    # 2. 실행 모드 및 리포트 제목 결정
     if trade_info:
         report_type = "trade_eval"
         report_title = f"💡 매매 전략 진단 ({trade_ticker})"
     elif len(sys.argv) > 1:
-        report_type = sys.argv[1]
+        report_type = sys.argv[1] # 'opening' 또는 'closing'
     else:
+        # UTC 시간에 따라 자동으로 마감(06시 KST) 또는 개장(07:50 KST) 리포트 결정
         current_hour_utc = datetime.now(timezone.utc).hour
         report_type = "closing" if current_hour_utc == 21 else "opening"
         
     if report_type != "trade_eval":
         report_title = "🇺🇸 미국 증시 마감" if report_type == "closing" else "🇰🇷 국내 증시 개장 전"
 
+    # 텔레그램 HTML 파싱 에러 방지를 위한 헬퍼 함수
     def safe_html(text):
+        if not text: return ""
         return html.escape(text.strip()).replace("&lt;pre&gt;", "<pre>").replace("&lt;/pre&gt;", "</pre>").replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
 
     print("2. AI 분석 진행 중...")
     analyzer = MarketAnalyzer(GEMINI_API_KEY)
-    analyzer.list_available_models()  # 사용 가능한 모델 목록 확인 로그 출력
+    analyzer.list_available_models()  # 디버깅용 모델 리스트 출력
     analysis_result = analyzer.generate_analysis(market_data, report_type=report_type, trade_info=trade_info)
 
     print("3. 텔레그램 알림 전송...")
     now = datetime.now().strftime('%Y-%m-%d %H:%M')
     notifier = TelegramNotifier(TELEGRAM_TOKEN, TELEGRAM_CHAT_ID)
 
+    # 생성된 모든 차트 전송 (지수 차트 + 포트폴리오 차트)
+    if os.path.exists(chart_path):
+        notifier.send_photo(chart_path)
+
+    for p_chart in portfolio_charts:
+        if os.path.exists(p_chart):
+            notifier.send_photo(p_chart)
+
+    # 요약본과 상세본 분리 처리 (구분자 [SPLIT] 기준)
     if "[SPLIT]" in analysis_result:
         summary, details = analysis_result.split("[SPLIT]", 1)
         
         try:
-            # 1. Telegraph에 상세 내용 업로드
+            # Telegraph에 상세 내용 업로드
             telegraph = Telegraph()
             telegraph.create_account(short_name='Stocky')
-            # 줄바꿈을 HTML 태그로 변환하여 업로드
             html_content = details.strip().replace('\n', '<br>')
+            
             telegraph_response = telegraph.create_page(
                 title=f"{report_title} 상세 분석 ({now})",
                 html_content=f"<p>{html_content}</p>"
             )
             detail_url = telegraph_response['url']
 
-            # 2. 버튼 구성 (인라인 키보드)
+            # 인라인 키보드 버튼 구성
             reply_markup = {
                 "inline_keyboard": [[
                     {"text": "📖 상세 분석 리포트 더보기", "url": detail_url}
                 ]]
             }
 
-            # 3. 요약본과 버튼 전송
+            # 요약 메시지 전송
             summary_text = f"📌 <b>{report_title} 핵심 요약 ({now})</b>\n\n{safe_html(summary)}"
             response = notifier.send_message(summary_text, reply_markup=reply_markup)
+            
         except Exception as e:
             print(f"⚠️ Telegraph 업로드 실패: {e}")
-            # 실패 시 기존처럼 텍스트로 전체 전송
             report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{safe_html(analysis_result)}"
             response = notifier.send_message(report_text)
     else:
-        # 구분자가 없을 경우 전체 전송 (예외 처리)
+        # 구분자가 없을 경우 전체 내용을 일반 메시지로 전송
         report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{safe_html(analysis_result)}"
         response = notifier.send_message(report_text)
 

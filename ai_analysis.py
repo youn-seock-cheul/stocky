@@ -26,8 +26,19 @@ class MarketAnalyzer:
             indices_summary += f"- {name}: 현재가 {info['price']}, 등락률 {info['change_pct']}%\n"
             
         portfolio_summary = ""
+        total_deposit = 0
+        total_value = 0
+
         for name, info in portfolio_data.items():
-            portfolio_summary += f"- {name}: 현재가 {info['price']}, 등락률 {info['change_pct']}%\n"
+            portfolio_summary += f"- {name}: 현재가 {info['price']} (평단 {info['avg_price']}), 수익률 {info['roi']}%, 평가손익 {info['profit_loss']}원\n"
+            total_deposit += info.get('deposit', 0)
+            total_value += info.get('current_value', 0)
+
+        if total_deposit > 0:
+            total_roi = (total_value - total_deposit) / total_deposit * 100
+            portfolio_summary += f"\n💰 총 투자금: {int(total_deposit)}원\n"
+            portfolio_summary += f"📈 총 평가금액: {int(total_value)}원\n"
+            portfolio_summary += f"📊 전체 수익률: {round(total_roi, 2)}%\n"
 
         # 2. 매매 판단 요청인 경우 (trade_info 존재 시)
         if trade_info:
@@ -103,7 +114,7 @@ class MarketAnalyzer:
         3. 표가 끝난 후 반드시 `[SPLIT]` 이라는 단어만 포함된 줄을 삽입하세요.
         4. 상세 분석 내용은 반드시 다음의 소제목을 사용하고, 섹터별로 나누어 가독성을 극대화하세요:
            - ▣ 오늘의 시장 동향 및 대응
-           - ▣ 보유 종목 주간 전망
+           - ▣ 보유 종목 수익률 분석 및 주간 전망
            - ▣ 향후 투자 관점 및 목표
         5. 전문적이면서도 투자자가 행동에 옮길 수 있도록 구체적인 한국어로 작성해주세요.
         """
