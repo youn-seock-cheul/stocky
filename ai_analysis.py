@@ -27,8 +27,6 @@ class MarketAnalyzer:
             indices_summary += f"- {name}: 현재가 {info['price']}, 등락률 {info['change_pct']}%\n"
             
         portfolio_summary = ""
-2       total_deposit = 0
-        total_value = 0
         total_deposit = sum(info.get('deposit', 0) for info in portfolio_data.values())
         total_value = sum(info.get('current_value', 0) for info in portfolio_data.values())
 
@@ -36,12 +34,9 @@ class MarketAnalyzer:
             current_val = info.get('current_value', 0)
             weight = (current_val / total_value * 100) if total_value > 0 else 0
             history_str = ", ".join([f"{d}: {p}" for d, p in info.get('history', {}).items()])
-            portfolio_summary += f"- {name}: 현재가 {info['price']} (평단 {info['avg_price']}), 수익률 {info['roi']}%, 평가손익 {info['profit_loss']}원\n"
             portfolio_summary += f"- {name}: 현재가 {info['price']} (평단 {info['avg_price']}), 수익률 {info['roi']}%, 비중 {round(weight, 1)}%, 평가손익 {info['profit_loss']}원\n"
             portfolio_summary += f"  [기술적 지표]: RSI({info.get('rsi')}), MACD({info.get('macd')}), Signal({info.get('macd_signal')})\n"
             portfolio_summary += f"  [최근 1개월 가격 데이터]: {history_str}\n"
-            total_deposit += info.get('deposit', 0)
-            total_value += info.get('current_value', 0)
 
         if total_deposit > 0:
             total_roi = (total_value - total_deposit) / total_deposit * 100
@@ -120,7 +115,6 @@ class MarketAnalyzer:
         1. 보고서 시작 부분에 **'오늘의 핵심 요약'**을 3줄 이내로 작성하세요. (가장 중요)
         2. 요약 바로 아래에 **[보유 종목 매매 예측 요약 표]**를 작성하세요. 
            텔레그램 가독성을 위해 반드시 <pre> 태그로 표 전체를 감싸고, 내부 컬럼 간격을 공백으로 맞춰 정렬하세요.
-           표 구성: | 종목명 | 수익률 | 매매예측(매수/매도/관망) | 목표가 |
            표 구성: | 종목명 | 비중 | 수익률 | 매매예측(매수/매도/관망) | 목표가 |
         3. 표가 끝난 후 반드시 `[SPLIT]` 이라는 단어만 포함된 줄을 삽입하세요.
         4. 상세 분석 내용은 반드시 다음의 소제목을 사용하고, 섹터별로 나누어 가독성을 극대화하세요:
