@@ -20,8 +20,8 @@ class MarketDataCollector:
         # 2. 실제 보유 중인 개인 포트폴리오 (원하시는 종목으로 변경하세요)
         self.my_portfolio = {
             "Samsung": "005930.KS",
-            "TIGER 미국우주테크": "0183J0",
-            "ACE AI반도체TOP3+": "469150"
+            "TIGER 미국우주테크": "479880.KS",
+            "ACE AI반도체TOP3+": "469150.KS"
         }
 
     def get_recent_data(self, days=5):
