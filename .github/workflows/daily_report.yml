@@ -73,7 +73,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add portfolio.json
-          # 분석된 스크린샷 삭제하여 중복 분석 방지
-          git rm -rf screenshots/Screenshot_* || true 
+          # 하위 폴더를 포함하여 분석된 스크린샷 삭제
+          git rm -rf screenshots/**/Screenshot_* || true 
           git commit -m "docs: AI 자동 잔고 업데이트 및 데이터 동기화" || exit 0
           git push

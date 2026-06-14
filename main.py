@@ -3,6 +3,7 @@ import sys
 import json
 import html
 import glob
+import re
 from datetime import datetime, timezone
 from market_data import MarketDataCollector
 from ai_analysis import MarketAnalyzer
