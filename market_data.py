@@ -117,6 +117,10 @@ class MarketDataCollector:
                 # 추세 분석 (선형 회귀)
                 x = np.arange(len(norm_prices))
                 slope, intercept = np.polyfit(x, norm_prices, 1)
+
+                # 변동성 범위를 위한 표준편차 계산 (잔차 기준)
+                trend_line = slope * x + intercept
+                std_dev = np.std(norm_prices - trend_line)
                 
                 # 향후 24시간(데이터 포인트 24개) 예측
                 future_x = np.arange(len(norm_prices), len(norm_prices) + 24)
@@ -125,6 +129,9 @@ class MarketDataCollector:
                 # 과거 데이터 및 예측 데이터(점선) 플롯
                 p = plt.plot(range(len(norm_prices)), norm_prices, label=f"{name}", alpha=0.7)
                 plt.plot(future_x, forecast, linestyle='--', color=p[0].get_color(), alpha=0.8)
+                
+                # 신뢰 구간 (Shadow) 추가 - 2배 표준편차 범위 (약 95% 신뢰구간)
+                plt.fill_between(future_x, forecast - 2*std_dev, forecast + 2*std_dev, color=p[0].get_color(), alpha=0.15)
         
         plt.title("Portfolio Trend & 24h Prediction (Normalized %)")
         plt.xlabel("Time (Hourly Intervals)")
