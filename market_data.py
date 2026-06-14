@@ -19,9 +19,19 @@ class MarketDataCollector:
         }
         # 2. 실제 보유 중인 개인 포트폴리오 (원하시는 종목으로 변경하세요)
         self.my_portfolio = {
-            "Samsung": {"ticker": "005930.KS", "avg_price": 75000, "deposit": 1500000},
-            "TIGER 미국우주테크": {"ticker": "479880.KS", "avg_price": 10500, "deposit": 500000},
-            "ACE AI반도체TOP3+": {"ticker": "469150.KS", "avg_price": 11000, "deposit": 500000}
+            "Samsung": {
+                "ticker": "005930.KS", "avg_price": 75000, "deposit": 1500000,
+                "transactions": [
+                    {"date": "2024-01-10", "price": 72000, "type": "buy"},
+                    {"date": "2024-03-05", "price": 81000, "type": "sell"}
+                ]
+            },
+            "NVIDIA": {
+                "ticker": "NVDA", "avg_price": 110.0, "deposit": 1000000,
+                "transactions": [
+                    {"date": "2024-02-15", "price": 75.0, "type": "buy"}
+                ]
+            }
         }
 
     def get_recent_data(self, days=5):
@@ -149,6 +159,43 @@ class MarketDataCollector:
         plt.close()
         generated_files.append(monthly_path)
 
+        return generated_files
+
+    def generate_stock_trend_charts(self, output_dir="charts"):
+        """각 종목별 트렌드와 매매 시점을 비교하는 차트 생성"""
+        if not HAS_MATPLOTLIB: return []
+        if not os.path.exists(output_dir): os.makedirs(output_dir)
+        
+        generated_files = []
+        for name, item in self.my_portfolio.items():
+            ticker = item["ticker"]
+            hist = yf.Ticker(ticker).history(period="1y") # 1년치 트렌드
+            if hist.empty: continue
+
+            plt.figure(figsize=(12, 6))
+            plt.plot(hist.index, hist['Close'], label=f"{name} Price", color='gray', alpha=0.5)
+            
+            # 매매 시점 표시
+            transactions = item.get("transactions", [])
+            for tx in transactions:
+                tx_date = pd.to_datetime(tx["date"]).tz_localize(hist.index.tz)
+                # 가장 가까운 영업일 데이터 찾기
+                idx = hist.index.get_indexer([tx_date], method='nearest')[0]
+                actual_date = hist.index[idx]
+                price = tx["price"]
+                
+                color = 'red' if tx["type"] == 'buy' else 'blue'
+                marker = '^' if tx["type"] == 'buy' else 'v'
+                plt.scatter(actual_date, price, color=color, marker=marker, s=100, 
+                            label=f"{tx['type'].upper()} @ {price}", zorder=5)
+
+            plt.title(f"{name} ({ticker}) Trend vs My Transactions")
+            plt.legend()
+            plt.grid(True, alpha=0.3)
+            path = os.path.join(output_dir, f"trend_{name}.png")
+            plt.savefig(path)
+            plt.close()
+            generated_files.append(path)
         return generated_files
 
     def get_specific_ticker_data(self, ticker):

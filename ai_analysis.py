@@ -1,4 +1,5 @@
 from google import genai
+import PIL.Image
 
 class MarketAnalyzer:
     def __init__(self, api_key):
@@ -135,3 +136,24 @@ class MarketAnalyzer:
                 continue
 
         return f"AI 분석 중 오류가 발생했습니다 ({report_type}): 모든 가용 모델의 할당량이 초과되었습니다."
+
+    def extract_portfolio_from_image(self, image_path):
+        """증권사 잔고 스크린샷에서 종목명, 평단가, 보유금액 추출"""
+        try:
+            img = PIL.Image.open(image_path)
+            prompt = """
+            이 증권사 잔고 화면 이미지에서 다음 정보를 찾아 JSON 형식으로만 응답하세요:
+            - 종목명 (예: 삼성전자)
+            - 평균단가 (숫자만)
+            - 평가금액 또는 투자원금 (숫자만)
+            
+            응답 형식 예시:
+            [
+                {"name": "삼성전자", "avg_price": 75000, "deposit": 1000000},
+                {"name": "Apple", "avg_price": 180.5, "deposit": 2000000}
+            ]
+            """
+            response = self.client.models.generate_content(model='gemini-2.0-flash', contents=[prompt, img])
+            return response.text
+        except Exception as e:
+            return f"이미지 분석 실패: {e}"

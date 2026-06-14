@@ -27,6 +27,16 @@ def run_daily_report():
     # 포트폴리오 수익률 추이 차트 생성 (일간/월간)
     portfolio_charts = collector.generate_portfolio_charts()
         
+    # 이미지 기반 포트폴리오 업데이트 (balance.png 파일이 있을 경우)
+    analyzer = MarketAnalyzer(GEMINI_API_KEY)
+    if os.path.exists("balance.png"):
+        print("📸 잔고 스크린샷 분석 중...")
+        extracted_data = analyzer.extract_portfolio_from_image("balance.png")
+        print(f"추출된 데이터: {extracted_data}")
+
+    # 각 종목별 트렌드 차트 생성
+    trend_charts = collector.generate_stock_trend_charts()
+
     # GitHub Actions 수동 입력값(매매 진단용) 확인
     trade_ticker = os.getenv("TRADE_TICKER")
     trade_category = os.getenv("TRADE_CATEGORY")
@@ -69,7 +79,6 @@ def run_daily_report():
         return html.escape(text.strip()).replace("&lt;pre&gt;", "<pre>").replace("&lt;/pre&gt;", "</pre>").replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
 
     print("2. AI 분석 진행 중...")
-    analyzer = MarketAnalyzer(GEMINI_API_KEY)
     analyzer.list_available_models()  # 디버깅용 모델 리스트 출력
     analysis_result = analyzer.generate_analysis(market_data, report_type=report_type, trade_info=trade_info)
 
@@ -84,6 +93,10 @@ def run_daily_report():
     for p_chart in portfolio_charts:
         if os.path.exists(p_chart):
             notifier.send_photo(p_chart)
+
+    for t_chart in trend_charts:
+        if os.path.exists(t_chart):
+            notifier.send_photo(t_chart)
 
     # 요약본과 상세본 분리 처리 (구분자 [SPLIT] 기준)
     if "[SPLIT]" in analysis_result:
