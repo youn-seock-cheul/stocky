@@ -1,4 +1,5 @@
 from google import genai
+import time
 
 class MarketAnalyzer:
     def __init__(self, api_key):
@@ -50,8 +51,22 @@ class MarketAnalyzer:
         4. 전문적이면서도 투자자가 행동에 옮길 수 있도록 구체적인 한국어로 작성해주세요.
         """
 
-        try:
-            response = self.client.models.generate_content(model='gemini-2.0-flash', contents=prompt)
-            return response.text
-        except Exception as e:
-            return f"AI 분석 중 오류가 발생했습니다 ({report_type}): {str(e)}"
+        # 시도할 모델 순서 (최신 모델 -> 안정화 모델)
+        models_to_try = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3.0-flash', 'gemini-3.5-flash']
+        
+        for model_name in models_to_try:
+            for attempt in range(2):  # 모델당 최대 2회 시도
+                try:
+                    response = self.client.models.generate_content(model=model_name, contents=prompt)
+                    return response.text
+                except Exception as e:
+                    error_msg = str(e)
+                    if "429" in error_msg:
+                        print(f"⚠️ {model_name} 할당량 초과. 20초 후 재시도합니다... (시도 {attempt + 1}/2)")
+                        time.sleep(20)  # 에러 메시지의 권장 대기 시간 반영
+                        continue
+                    else:
+                        print(f"❌ {model_name} 호출 중 오류 발생: {error_msg}")
+                        break  # 다음 모델로 넘어가거나 종료
+
+        return f"AI 분석 중 오류가 발생했습니다 ({report_type}): 모든 가용 모델의 할당량이 초과되었습니다."
