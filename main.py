@@ -63,6 +63,7 @@ def run_daily_report():
 
     print("2. AI 분석 진행 중...")
     analyzer = MarketAnalyzer(GEMINI_API_KEY)
+    analyzer.list_available_models()  # 사용 가능한 모델 목록 확인 로그 출력
     analysis_result = analyzer.generate_analysis(market_data, report_type=report_type, trade_info=trade_info)
 
     print("3. 텔레그램 알림 전송...")
