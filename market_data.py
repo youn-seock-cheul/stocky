@@ -1,5 +1,6 @@
 import os
 import json
+import numpy as np
 import yfinance as yf
 import pandas as pd
 try:
@@ -97,26 +98,39 @@ class MarketDataCollector:
             "portfolio": fetch_data(self.my_portfolio, is_portfolio=True)
         }
 
-    def generate_chart(self, output_path="chart.png"):
-        """주요 지수의 5일 흐름을 차트로 생성"""
+    def generate_portfolio_prediction_chart(self, output_path="chart.png"):
+        """보유 종목의 한 달 흐름 및 향후 24시간 예측 차트 생성"""
         if not HAS_MATPLOTLIB:
             print("⚠️ Matplotlib 라이브러리 로드 실패로 차트 생성을 건너뜁니다.")
             return
 
-        plt.figure(figsize=(10, 6))
-        for name, ticker in self.indices.items():
-            if name == "USD_KRW": continue # 환율은 단위가 달라 제외
-            data = yf.Ticker(ticker).history(period="5d")
+        plt.figure(figsize=(12, 6))
+        for name, item in self.my_portfolio.items():
+            ticker = item["ticker"]
+            # 최근 1개월 시간별 데이터 수집 (예측 정확도 향상)
+            data = yf.download(ticker, period="1mo", interval="1h", progress=False)
             if not data.empty:
-                # 첫날 기준 변동률로 정규화
-                normalized = (data['Close'] / data['Close'].iloc[0] - 1) * 100
-                plt.plot(normalized.index.strftime('%m-%d'), normalized, label=name, marker='o')
+                prices = data['Close'].values
+                # 첫 가격 기준 변동률(%) 정규화 (여러 종목 비교용)
+                norm_prices = (prices / prices[0] - 1) * 100
+                
+                # 추세 분석 (선형 회귀)
+                x = np.arange(len(norm_prices))
+                slope, intercept = np.polyfit(x, norm_prices, 1)
+                
+                # 향후 24시간(데이터 포인트 24개) 예측
+                future_x = np.arange(len(norm_prices), len(norm_prices) + 24)
+                forecast = slope * future_x + intercept
+                
+                # 과거 데이터 및 예측 데이터(점선) 플롯
+                p = plt.plot(range(len(norm_prices)), norm_prices, label=f"{name}", alpha=0.7)
+                plt.plot(future_x, forecast, linestyle='--', color=p[0].get_color(), alpha=0.8)
         
-        plt.title("Recent Market Trends (Normalized %)")
-        plt.xlabel("Date")
-        plt.ylabel("Change (%)")
+        plt.title("Portfolio Trend & 24h Prediction (Normalized %)")
+        plt.xlabel("Time (Hourly Intervals)")
+        plt.ylabel("Normalized Change (%)")
         plt.legend()
-        plt.grid(True)
+        plt.grid(True, alpha=0.3)
         plt.savefig(output_path)
         plt.close()
 

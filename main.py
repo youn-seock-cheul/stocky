@@ -23,9 +23,9 @@ def run_daily_report():
     print("1. 데이터 수집 및 시각화 시작...")
     collector = MarketDataCollector()
     
-    # 지수 비교 차트 생성
+    # 보유 종목 예측 차트 생성
     chart_path = "chart.png"
-    collector.generate_chart(chart_path)
+    collector.generate_portfolio_prediction_chart(chart_path)
         
     # [비전] 이미지 기반 포트폴리오 업데이트 (screenshots 폴더 내의 Screenshot_*.jpg/png 파일 처리)
     analyzer = MarketAnalyzer(GEMINI_API_KEY)
