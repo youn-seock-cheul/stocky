@@ -1,3 +1,4 @@
+import os
 import yfinance as yf
 import pandas as pd
 try:
@@ -149,7 +150,7 @@ class MarketDataCollector:
 
         # 2. 월별 수익률 그래프 (최근 6개월)
         monthly_path = f"{output_prefix}_monthly.png"
-        monthly_data = df_returns.resample('M').last()
+        monthly_data = df_returns.resample('ME').last()
         plt.figure(figsize=(10, 5))
         plt.bar(monthly_data.index.strftime('%Y-%m'), monthly_data.values, color='lightgreen')
         plt.axhline(0, color='red', linestyle='-')
