@@ -147,13 +147,14 @@ class MarketAnalyzer:
             prompt = """
             이 증권사 잔고 화면 이미지에서 다음 정보를 찾아 JSON 형식으로만 응답하세요:
             - 종목명 (예: 삼성전자)
+            - 티커 (예: 005930.KS 또는 AAPL. 한국 주식은 반드시 .KS 또는 .KQ 접미사를 포함하세요)
             - 평균단가 (숫자만)
             - 평가금액 또는 투자원금 (숫자만)
             
             응답 형식 예시:
             [
-                {"name": "삼성전자", "avg_price": 75000, "deposit": 1000000},
-                {"name": "Apple", "avg_price": 180.5, "deposit": 2000000}
+                {"name": "삼성전자", "ticker": "005930.KS", "avg_price": 75000, "deposit": 1000000},
+                {"name": "Apple", "ticker": "AAPL", "avg_price": 180.5, "deposit": 2000000}
             ]
             """
             response = self.client.models.generate_content(model='gemini-2.0-flash', contents=[prompt, img])

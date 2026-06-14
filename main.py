@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import html
 from datetime import datetime, timezone
 from market_data import MarketDataCollector
@@ -30,7 +31,14 @@ def run_daily_report():
     if os.path.exists("balance.png"):
         print("📸 잔고 스크린샷 분석 중...")
         extracted_data = analyzer.extract_portfolio_from_image("balance.png")
-        print(f"추출된 데이터: {extracted_data}")
+        # AI 응답에서 JSON만 추출하여 파싱
+        clean_json = extracted_data.strip().replace("```json", "").replace("```", "")
+        try:
+            portfolio_list = json.loads(clean_json)
+            collector.update_portfolio_from_list(portfolio_list)
+            print("🎯 포트폴리오 업데이트 완료!")
+        except Exception as e:
+            print(f"❌ 포트폴리오 데이터 파싱 실패: {e}")
 
     # [입력] GitHub Actions 수동 입력값(매매 진단용) 확인
     trade_ticker = os.getenv("TRADE_TICKER")

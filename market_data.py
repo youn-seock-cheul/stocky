@@ -1,4 +1,5 @@
 import os
+import json
 import yfinance as yf
 import pandas as pd
 try:
@@ -10,6 +11,7 @@ except ImportError:
 
 class MarketDataCollector:
     def __init__(self):
+        self.portfolio_file = "portfolio.json"
         # 1. 시장 흐름 파악을 위한 주요 지수
         self.indices = {
             "S&P500": "^GSPC",      # 미국 S&P 500
@@ -19,11 +21,31 @@ class MarketDataCollector:
             "USD_KRW": "USDKRW=X"   # 원/달러 환율
         }
         # 2. 실제 보유 중인 개인 포트폴리오 (원하시는 종목으로 변경하세요)
+        self.load_portfolio()
+
+    def load_portfolio(self):
+        """파일에서 포트폴리오 로드 또는 기본값 설정"""
+        if os.path.exists(self.portfolio_file):
+            try:
+                with open(self.portfolio_file, 'r', encoding='utf-8') as f:
+                    self.my_portfolio = json.load(f)
+                print(f"✅ 포트폴리오 데이터를 {self.portfolio_file}에서 불러왔습니다.")
+            except Exception as e:
+                print(f"⚠️ 포트폴리오 로드 실패: {e}")
+                self._set_default_portfolio()
+        else:
+            self._set_default_portfolio()
+            self.save_portfolio()
+
+    def _set_default_portfolio(self):
         self.my_portfolio = {
-            "Samsung": {"ticker": "005930.KS", "avg_price": 75000, "deposit": 1500000},
-            "TIGER 미국우주테크": {"ticker": "479880.KS", "avg_price": 10500, "deposit": 500000},
-            "ACE AI반도체TOP3+": {"ticker": "469150.KS", "avg_price": 11000, "deposit": 500000}
+            "Samsung": {"ticker": "005930.KS", "avg_price": 75000, "deposit": 1500000}
         }
+
+    def save_portfolio(self):
+        """현재 포트폴리오를 파일에 저장"""
+        with open(self.portfolio_file, 'w', encoding='utf-8') as f:
+            json.dump(self.my_portfolio, f, ensure_ascii=False, indent=4)
 
     def get_recent_data(self, days=30):
         """최근 n일간의 종가 데이터를 가져와 요약본 반환"""
@@ -97,6 +119,25 @@ class MarketDataCollector:
         plt.grid(True)
         plt.savefig(output_path)
         plt.close()
+
+    def update_portfolio_from_list(self, portfolio_list):
+        """AI가 추출한 리스트로 포트폴리오 업데이트"""
+        new_portfolio = {}
+        for item in portfolio_list:
+            name = item.get("name")
+            ticker = item.get("ticker")
+            avg_price = item.get("avg_price")
+            deposit = item.get("deposit")
+            if name and ticker:
+                new_portfolio[name] = {
+                    "ticker": ticker,
+                    "avg_price": float(avg_price),
+                    "deposit": float(deposit)
+                }
+        if new_portfolio:
+            self.my_portfolio = new_portfolio
+            self.save_portfolio()
+            print("✅ 포트폴리오 파일이 업데이트되었습니다.")
 
     def get_specific_ticker_data(self, ticker):
         """특정 종목 한 개의 최신 데이터 수집"""
