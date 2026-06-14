@@ -8,7 +8,30 @@ on:
     - cron: '50 22 * * 0-4'
     # 2. 미국 증시 마감 후 결과 리포트 (KST 화-토 06:00 / UTC 월-금 21:00)
     - cron: '0 21 * * 1-5'
-  workflow_dispatch: # 수동 실행 버튼 활성화 (테스트용)
+  workflow_dispatch: # 매매 분석 및 수동 실행
+    inputs:
+      category:
+        description: '투자 유형 (국내주식 / 해외 ETF / 해외 개인주식)'
+        required: false
+        type: choice
+        options:
+          - '국내주식'
+          - '해외 ETF'
+          - '해외 개인주식'
+      action:
+        description: '작업 선택 (매수 / 매도 / 신규진입)'
+        required: false
+        type: choice
+        options:
+          - '매수'
+          - '매도'
+          - '신규진입'
+      ticker:
+        description: '종목코드 (예: 005930.KS, AAPL, QQQ)'
+        required: false
+      reason:
+        description: '매매 사유 (선택 사항)'
+        required: false
 
 jobs:
   build:
@@ -35,5 +58,12 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TRADE_CATEGORY: ${{ github.event.inputs.category }}
+          TRADE_ACTION: ${{ github.event.inputs.action }}
+          TRADE_TICKER: ${{ github.event.inputs.ticker }}
+          TRADE_REASON: ${{ github.event.inputs.reason }}
+        run: |
+          python main.py
+
         run: |
           python main.py

@@ -1,5 +1,6 @@
 import os
 import sys
+import html
 from datetime import datetime, timezone
 from market_data import MarketDataCollector
 from ai_analysis import MarketAnalyzer
@@ -19,16 +20,35 @@ def run_daily_report():
 
     print("1. 데이터 수집 시작...")
     collector = MarketDataCollector()
+        
+    # GitHub Actions 입력값 확인
+    trade_ticker = os.getenv("TRADE_TICKER")
+    trade_category = os.getenv("TRADE_CATEGORY")
+    trade_action = os.getenv("TRADE_ACTION")
+    trade_reason = os.getenv("TRADE_REASON")
+
+    trade_info = None
+    if trade_ticker and trade_category and trade_action:
+        print(f"🎯 매매 분석 모드 작동: {trade_ticker}")
+        ticker_data = collector.get_specific_ticker_data(trade_ticker)
+        if ticker_data:
+            trade_info = {
+                "category": trade_category,
+                "action": trade_action,
+                "ticker": trade_ticker,
+                "reason": trade_reason or "사유 미입력",
+                "data": ticker_data
+            }
+
     market_data = collector.get_recent_data()
 
     # 2. 실행 시간에 따른 리포트 성격 결정 (UTC 기준)
-    # 21시 UTC = 06:00 KST (미국 마감), 22시 UTC = 07:50 KST (한국 개장 전)
-    # 테스트를 위해 명령행 인자가 있으면 해당 인자를 사용 (예: python main.py closing)
-    if len(sys.argv) > 1:
+    if trade_info:
+        report_type = "trade_eval"
+        report_title = f"💡 매매 전략 진단 ({trade_ticker})"
+    elif len(sys.argv) > 1:
         report_type = sys.argv[1]
     else:
-        # datetime.utcnow()는 향후 폐기될 예정이므로 최신 방식을 권장하지만, 
-        # 현재 코드의 일관성을 위해 유지하거나 아래와 같이 처리합니다.
         current_hour_utc = datetime.now(timezone.utc).hour
         report_type = "closing" if current_hour_utc == 21 else "opening"
         
@@ -36,7 +56,7 @@ def run_daily_report():
 
     print("2. AI 분석 진행 중...")
     analyzer = MarketAnalyzer(GEMINI_API_KEY)
-    analysis_result = analyzer.generate_analysis(market_data, report_type=report_type)
+    analysis_result = analyzer.generate_analysis(market_data, report_type=report_type, trade_info=trade_info)
 
     print("3. 텔레그램 알림 전송...")
     now = datetime.now().strftime('%Y-%m-%d %H:%M')
@@ -65,16 +85,16 @@ def run_daily_report():
             }
 
             # 3. 요약본과 버튼 전송
-            summary_text = f"📌 <b>{report_title} 핵심 요약 ({now})</b>\n\n{summary.strip()}"
+            summary_text = f"📌 <b>{report_title} 핵심 요약 ({now})</b>\n\n{html.escape(summary.strip())}"
             response = notifier.send_message(summary_text, reply_markup=reply_markup)
         except Exception as e:
             print(f"⚠️ Telegraph 업로드 실패: {e}")
             # 실패 시 기존처럼 텍스트로 전체 전송
-            report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{analysis_result}"
+            report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{html.escape(analysis_result)}"
             response = notifier.send_message(report_text)
     else:
         # 구분자가 없을 경우 전체 전송 (예외 처리)
-        report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{analysis_result}"
+        report_text = f"📊 <b>{report_title} 리포트 ({now})</b>\n\n{html.escape(analysis_result)}"
         response = notifier.send_message(report_text)
 
     if response.status_code == 200:
