@@ -165,22 +165,27 @@ class MarketDataCollector:
 
     def update_portfolio_from_list(self, portfolio_list):
         """AI가 추출한 리스트로 포트폴리오 업데이트"""
-        new_portfolio = {}
+        updated_items_from_screenshot = {}
         for item in portfolio_list:
             name = item.get("name")
             ticker = item.get("ticker")
             avg_price = item.get("avg_price")
             deposit = item.get("deposit")
-            if name and ticker:
-                new_portfolio[name] = {
+            if name and ticker and avg_price is not None and deposit is not None:
+                updated_items_from_screenshot[name] = {
                     "ticker": ticker,
                     "avg_price": float(avg_price),
                     "deposit": float(deposit)
                 }
+            else:
+                print(f"⚠️ 이미지 분석에서 필수 정보 누락 또는 형식 오류: {item}")
         if new_portfolio:
-            self.my_portfolio = new_portfolio
+            # 기존 포트폴리오에 스크린샷에서 추출된 항목들을 병합 (업데이트 또는 추가)
+            self.my_portfolio.update(updated_items_from_screenshot)
             self.save_portfolio()
             print("✅ 포트폴리오 파일이 업데이트되었습니다.")
+        else:
+            print("⚠️ 이미지 분석에서 유효한 포트폴리오 항목을 추출하지 못했습니다.")
 
     def get_specific_ticker_data(self, ticker):
         """특정 종목 한 개의 최신 데이터 수집"""

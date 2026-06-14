@@ -41,13 +41,19 @@ def run_daily_report():
             for img_path in image_files:
                 print(f"📸 잔고 스크린샷 분석 중: {img_path}...")
                 extracted_data = analyzer.extract_portfolio_from_image(img_path)
-                clean_json = extracted_data.strip().replace("```json", "").replace("```", "")
+                print(f"Raw extracted data from Vision: {extracted_data}") # Vision 모델 원본 출력
+                clean_json = extracted_data.strip().replace("```json", "").replace("```", "").strip()
+                print(f"Clean JSON for parsing: {clean_json}") # 파싱 전 정리된 JSON
                 try:
                     portfolio_list = json.loads(clean_json)
+                    print(f"Parsed portfolio list: {portfolio_list}") # JSON 파싱 결과
                     collector.update_portfolio_from_list(portfolio_list)
                     print(f"🎯 포트폴리오 업데이트 완료: {os.path.basename(img_path)}")
+                except json.JSONDecodeError as e:
+                    print(f"❌ 포트폴리오 JSON 파싱 실패 ({img_path}): {e}")
+                    print(f"  실패한 JSON 내용: {clean_json}")
                 except Exception as e:
-                    print(f"❌ 포트폴리오 데이터 파싱 실패 ({img_path}): {e}")
+                    print(f"❌ 포트폴리오 데이터 처리 중 예상치 못한 오류 발생 ({img_path}): {e}")
 
     # [입력] GitHub Actions 수동 입력값(매매 진단용) 확인
     trade_ticker = os.getenv("TRADE_TICKER")
