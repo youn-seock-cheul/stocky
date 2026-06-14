@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import yfinance as yf
 import pandas as pd
 try:
@@ -194,6 +195,49 @@ class MarketDataCollector:
             plt.legend()
             plt.grid(True, alpha=0.3)
             path = os.path.join(output_dir, f"trend_{name}.png")
+            plt.savefig(path)
+            plt.close()
+            generated_files.append(path)
+        return generated_files
+
+    def generate_hourly_forecast_charts(self, output_dir="forecasts"):
+        """한 달간의 데이터를 기반으로 향후 24시간 추세 예측 그래프 생성"""
+        if not HAS_MATPLOTLIB: return []
+        if not os.path.exists(output_dir): os.makedirs(output_dir)
+        
+        generated_files = []
+        for name, item in self.my_portfolio.items():
+            ticker = item["ticker"]
+            # 최근 1개월간의 시간별 데이터 수집
+            data = yf.download(ticker, period="1mo", interval="1h", progress=False)
+            if data.empty: continue
+
+            # 추세 분석 (선형 회귀)
+            prices = data['Close'].values
+            x = np.arange(len(prices))
+            slope, intercept = np.polyfit(x, prices, 1)
+            
+            # 향후 24시간 예측 데이터 생성
+            future_x = np.arange(len(prices), len(prices) + 24)
+            forecast_values = slope * future_x + intercept
+            
+            # 미래 시간 인덱스 생성
+            last_time = data.index[-1]
+            future_dates = [last_time + pd.Timedelta(hours=i+1) for i in range(24)]
+
+            plt.figure(figsize=(12, 6))
+            # 과거 데이터 플롯
+            plt.plot(data.index, prices, label="Historical (Last 1mo)", color='steelblue', alpha=0.8)
+            # 예측 데이터 플롯
+            plt.plot(future_dates, forecast_values, label="Predicted Trend (Next 24h)", 
+                     color='orange', linestyle='--', linewidth=2)
+            
+            plt.title(f"{name} ({ticker}) 24-Hour Price Movement Forecast")
+            plt.xlabel("Time")
+            plt.ylabel("Price")
+            plt.legend()
+            plt.grid(True, alpha=0.3)
+            path = os.path.join(output_dir, f"forecast_{name}.png")
             plt.savefig(path)
             plt.close()
             generated_files.append(path)

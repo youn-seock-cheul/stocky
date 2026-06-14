@@ -27,6 +27,7 @@ def run_daily_report():
     # 포트폴리오 수익률 추이 차트 생성 (일간/월간)
     portfolio_charts = collector.generate_portfolio_charts()
         
+
     # 이미지 기반 포트폴리오 업데이트 (balance.png 파일이 있을 경우)
     analyzer = MarketAnalyzer(GEMINI_API_KEY)
     if os.path.exists("balance.png"):
@@ -36,6 +37,9 @@ def run_daily_report():
 
     # 각 종목별 트렌드 차트 생성
     trend_charts = collector.generate_stock_trend_charts()
+
+    # 각 종목별 향후 24시간 예측 차트 생성
+    forecast_charts = collector.generate_hourly_forecast_charts()
 
     # GitHub Actions 수동 입력값(매매 진단용) 확인
     trade_ticker = os.getenv("TRADE_TICKER")
@@ -97,6 +101,10 @@ def run_daily_report():
     for t_chart in trend_charts:
         if os.path.exists(t_chart):
             notifier.send_photo(t_chart)
+
+    for f_chart in forecast_charts:
+        if os.path.exists(f_chart):
+            notifier.send_photo(f_chart)
 
     # 요약본과 상세본 분리 처리 (구분자 [SPLIT] 기준)
     if "[SPLIT]" in analysis_result:
