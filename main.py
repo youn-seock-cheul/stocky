@@ -1,6 +1,7 @@
 import os
 import sys
 from datetime import datetime
+from datetime import datetime, timezone
 from market_data import MarketDataCollector
 from ai_analysis import MarketAnalyzer
 from telegram_bot import TelegramNotifier
@@ -25,6 +26,7 @@ def run_daily_report():
         # datetime.utcnow()는 향후 폐기될 예정이므로 최신 방식을 권장하지만, 
         # 현재 코드의 일관성을 위해 유지하거나 아래와 같이 처리합니다.
         current_hour_utc = datetime.utcnow().hour
+        current_hour_utc = datetime.now(timezone.utc).hour
         report_type = "closing" if current_hour_utc == 21 else "opening"
         
     report_title = "🇺🇸 미국 증시 마감" if report_type == "closing" else "🇰🇷 국내 증시 개장 전"

@@ -1,6 +1,8 @@
 name: Daily Stock Report
 
 on:
+  push:
+    branches: [ main ] # main 브랜치에 푸시될 때마다 실행
   schedule:
     # 1. 한국 증시 개장 전 전략 리포트 (KST 월-금 07:50 / UTC 일-목 22:50)
     - cron: '50 22 * * 0-4'
