@@ -1,6 +1,11 @@
 import yfinance as yf
 import pandas as pd
-import matplotlib.pyplot as plt
+try:
+    import matplotlib.pyplot as plt
+    HAS_MATPLOTLIB = True
+except ImportError:
+    plt = None
+    HAS_MATPLOTLIB = False
 
 class MarketDataCollector:
     def __init__(self):
@@ -51,6 +56,10 @@ class MarketDataCollector:
 
     def generate_chart(self, output_path="chart.png"):
         """주요 지수의 5일 흐름을 차트로 생성"""
+        if not HAS_MATPLOTLIB:
+            print("⚠️ Matplotlib 라이브러리 로드 실패로 차트 생성을 건너뜁니다.")
+            return
+
         plt.figure(figsize=(10, 6))
         for name, ticker in self.indices.items():
             if name == "USD_KRW": continue # 환율은 단위가 달라 제외
