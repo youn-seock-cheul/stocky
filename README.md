@@ -61,8 +61,8 @@ GitHub 저장소의 `Actions` 탭에서 `Daily Stock Report`를 선택한 후 `R
 
 ## 📸 잔고 스크린샷 업데이트 방법
 1. 증권사 앱에서 잔고 화면을 캡처합니다.
-2. 파일명을 `balance.png`로 저장하여 프로젝트 루트 폴더에 넣습니다.
-3. `main.py`를 실행하면 AI가 데이터를 추출하여 `portfolio.json`을 자동으로 갱신합니다.
+2. 파일명을 `Screenshot_YYYYMMDD_HHMMSS.jpg` 형식으로 저장하여 `screenshots` 폴더에 넣습니다.
+3. `main.py`를 실행하면 AI가 폴더 내의 스크린샷들을 분석하여 `portfolio.json`을 자동으로 갱신합니다.
 4. 한 번 업데이트된 데이터는 파일로 보관되므로, 이후에는 사진이 없어도 기존 잔고를 기준으로 분석이 진행됩니다.
 
 ## 📁 파일 구조

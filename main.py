@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import html
+import glob
 from datetime import datetime, timezone
 from market_data import MarketDataCollector
 from ai_analysis import MarketAnalyzer
@@ -26,19 +27,27 @@ def run_daily_report():
     chart_path = "chart.png"
     collector.generate_chart(chart_path)
         
-    # [비전] 이미지 기반 포트폴리오 업데이트 (balance.png 파일이 프로젝트 루트에 있을 경우)
+    # [비전] 이미지 기반 포트폴리오 업데이트 (screenshots 폴더 내의 Screenshot_*.jpg/png 파일 처리)
     analyzer = MarketAnalyzer(GEMINI_API_KEY)
-    if os.path.exists("balance.png"):
-        print("📸 잔고 스크린샷 분석 중...")
-        extracted_data = analyzer.extract_portfolio_from_image("balance.png")
-        # AI 응답에서 JSON만 추출하여 파싱
-        clean_json = extracted_data.strip().replace("```json", "").replace("```", "")
-        try:
-            portfolio_list = json.loads(clean_json)
-            collector.update_portfolio_from_list(portfolio_list)
-            print("🎯 포트폴리오 업데이트 완료!")
-        except Exception as e:
-            print(f"❌ 포트폴리오 데이터 파싱 실패: {e}")
+    screenshot_dir = "screenshots"
+    if os.path.exists(screenshot_dir):
+        # Screenshot_ 으로 시작하는 jpg, jpeg, png 파일 검색
+        image_files = []
+        for ext in ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"]:
+            image_files.extend(glob.glob(os.path.join(screenshot_dir, f"Screenshot_*.{ext}")))
+        
+        if image_files:
+            image_files.sort()  # 파일명(날짜/시간) 순으로 정렬하여 순차 업데이트
+            for img_path in image_files:
+                print(f"📸 잔고 스크린샷 분석 중: {img_path}...")
+                extracted_data = analyzer.extract_portfolio_from_image(img_path)
+                clean_json = extracted_data.strip().replace("```json", "").replace("```", "")
+                try:
+                    portfolio_list = json.loads(clean_json)
+                    collector.update_portfolio_from_list(portfolio_list)
+                    print(f"🎯 포트폴리오 업데이트 완료: {os.path.basename(img_path)}")
+                except Exception as e:
+                    print(f"❌ 포트폴리오 데이터 파싱 실패 ({img_path}): {e}")
 
     # [입력] GitHub Actions 수동 입력값(매매 진단용) 확인
     trade_ticker = os.getenv("TRADE_TICKER")
