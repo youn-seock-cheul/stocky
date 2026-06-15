@@ -98,8 +98,7 @@ def run_daily_report():
         if not text: return ""
         return html.escape(text.strip()).replace("&lt;pre&gt;", "<pre>").replace("&lt;/pre&gt;", "</pre>").replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
 
-    print("2. AI 분석 진행 중...")
-    analyzer.list_available_models()  # 사용 가능한 모델 목록 출력 (로그 확인용)
+    print("2. AI 분석 진행 중...")    
     analysis_result = analyzer.generate_analysis(market_data, report_type=report_type, trade_info=trade_info)
 
     print("3. 텔레그램 알림 전송...")
