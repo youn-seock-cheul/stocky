@@ -15,7 +15,11 @@ class MarketDataCollector:
         if os.path.exists(self.portfolio_file):
             with open(self.portfolio_file, 'r', encoding='utf-8') as f: self.my_portfolio = json.load(f)
         else:
-            self.my_portfolio = {"Samsung": {"ticker": "005930.KS", "avg_price": 75000, "deposit": 1000000}}
+            self.my_portfolio = [{"Samsung": {"ticker": "005930.KS", "avg_price": 6,568,901, "deposit": 7,384,545}}
+                                 ,{"RISE AI전력인프라": {"ticker": "005930.KS", "avg_price": 43,426,200, "deposit": 43,202,755}}
+                                 ,{"TIGER 미국우주테크": {"ticker": "005930.KS", "avg_price": 43,404,405, "deposit": 47,162,030}}
+                                 ,{"KODEX AI반도체TOP2플러스": {"ticker": "005930.KS", "avg_price": 10,591,000, "deposit": 10,566,000}}
+                                 ,{"TIGER 2차전지TOP10": {"ticker": "005930.KS", "avg_price": 7,179,000, "deposit": 7,077,000}}]
 
     def get_recent_data(self, days=30):
         def fetch(target, is_p=False):
