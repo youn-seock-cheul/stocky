@@ -49,6 +49,6 @@ class MarketAnalyzer:
             4. deposit: 매입금액 (숫자만)
             결과는 반드시 [{"name": "...", "ticker": "...", "avg_price": 0, "deposit": 0}] 형식의 JSON 배열만 보내세요.
             """
-            return self.client.models.generate_content(model='gemini-2.5-flash', contents=[prompt, img]).text
+            return self.client.models.generate_content(model='gemini-3.5-flash', contents=[prompt, img]).text
         except Exception as e:
             return f"이미지 분석 실패: {e}"
