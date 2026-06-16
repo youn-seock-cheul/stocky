@@ -5,27 +5,27 @@
         "deposit": 1500000
     },
     "TIGER 미국우주테크": {
-        "ticker": "481540.KS",
+        "ticker": "481060.KS",
         "avg_price": 13924.0,
         "deposit": 33243855.0
     },
     "ACE AI반도체TOP3+": {
-        "ticker": "465620.KS",
+        "ticker": "469080.KS",
         "avg_price": 73852.0,
         "deposit": 52287216.0
     },
     "RISE AI전력인프라": {
-        "ticker": "481170.KS",
+        "ticker": "480110.KS",
         "avg_price": 22931.0,
         "deposit": 43211455.0
     },
     "KODEX AI반도체TOP2플러스": {
-        "ticker": "471900.KS",
+        "ticker": "471030.KS",
         "avg_price": 53410.0,
         "deposit": 22864330.0
     },
     "TIGER 2차전지TOP10": {
-        "ticker": "399220.KS",
+        "ticker": "396500.KS",
         "avg_price": 11795.0,
         "deposit": 7078400.0
     }
