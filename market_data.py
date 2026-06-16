@@ -46,6 +46,11 @@ class MarketDataCollector:
         return {"indices": fetch(self.indices), "portfolio": fetch(self.my_portfolio, True)}
 
     def generate_portfolio_prediction_chart(self, output_path="chart.png"):
+        plt.rc('font', family='Malgun Gothic') # For Windows
+        # plt.rc('font', family='AppleGothic') # For Mac
+        # plt.rc('font', family='NanumBarunGothic') # For Linux / Colab        
+        plt.rc('axes', unicode_minus=False) # Fixes minus sign errors
+        
         plt.figure(figsize=(12, 6))
         for name, item in self.my_portfolio.items():
             data = yf.download(item['ticker'], period="1mo", interval="1h", progress=False)
