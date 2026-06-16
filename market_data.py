@@ -3,7 +3,7 @@ import json
 import numpy as np
 import yfinance as yf
 import pandas as pd
-import matplotlib.pyplot as plt
+from matplotlib import font_manager, rc
 
 class MarketDataCollector:
     def __init__(self):
