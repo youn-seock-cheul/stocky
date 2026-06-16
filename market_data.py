@@ -3,7 +3,7 @@ import json
 import numpy as np
 import yfinance as yf
 import pandas as pd
-from matplotlib import font_manager, rc
+import matplotlib.pyplot as rc
 
 class MarketDataCollector:
     def __init__(self):
@@ -46,14 +46,7 @@ class MarketDataCollector:
         return {"indices": fetch(self.indices), "portfolio": fetch(self.my_portfolio, True)}
 
     def generate_portfolio_prediction_chart(self, output_path="chart.png"):
-        # OS에 따른 한글 폰트 설정
-        if platform.system() == 'Windows':
-            rc('font', family='Malgun Gothic')
-        elif platform.system() == 'Darwin': # Mac
-            rc('font', family='AppleGothic')
-        else: # Linux (GitHub Actions 환경)
-            rc('font', family='NanumGothic')
-
+        
         plt.rcParams['axes.unicode_minus'] = False # 마이너스 기호 깨짐 방지
         
         plt.figure(figsize=(12, 6))
