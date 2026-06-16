@@ -134,7 +134,16 @@ def run_daily_report():
 
             # 요약 메시지 전송
             summary_text = f"📌 <b>{report_title} 핵심 요약 ({now})</b>\n\n{safe_html(summary)}"
-            response = notifier.send_message(summary_text, reply_markup=reply_markup)
+            # response = notifier.send_message(summary_text, reply_markup=reply_markup)
+            
+            # 텔레그램 최대 글자 수 설정 (안전을 위해 4000자 단위로 분할)
+            max_length = 4000
+            
+            # 텍스트를 max_length 단위로 쪼개어 리스트로 생성
+            chunks = [text[i:i + max_length] for i in range(0, len(summary_text), max_length)]
+            
+            for chunk in chunks:
+                response = notifier.send_message(chunk, reply_markup=reply_markup)            
             
         except Exception as e:
             print(f"⚠️ Telegraph 업로드 실패: {e}")
