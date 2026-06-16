@@ -47,8 +47,8 @@ class MarketDataCollector:
 
     def generate_portfolio_prediction_chart(self, output_path="chart.png"):
         # plt.rc('font', family='Malgun Gothic') # For Windows
-        # plt.rc('font', family='AppleGothic') # For Mac
-        plt.rc('font', family='NanumBarunGothic') # For Linux / Colab        
+         plt.rc('font', family='AppleGothic') # For Mac
+        # plt.rc('font', family='NanumBarunGothic') # For Linux / Colab        
         plt.rc('axes', unicode_minus=False) # Fixes minus sign errors
         
         plt.figure(figsize=(12, 6))
