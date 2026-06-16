@@ -26,7 +26,7 @@ class MarketAnalyzer:
         prompt = f"위 데이터를 바탕으로 분석하세요. 상세 리포트 섹션 제목에는 시장 상황에 맞는 이모지를 동적으로 사용하세요." 
         # (실제 구현 시에는 이전 단계에서 완성한 긴 프롬프트를 이곳에 통합합니다)
 
-        models_to_try = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-3.0-flash', 'gemini-3.5-flash']
+        models_to_try = ['gemini-3.0-flash', 'gemini-3.5-flash']
         for model_name in models_to_try:
             try:
                 return self.client.models.generate_content(model=model_name, contents=prompt).text
@@ -49,6 +49,6 @@ class MarketAnalyzer:
             4. deposit: 매입금액 (숫자만)
             결과는 반드시 [{"name": "...", "ticker": "...", "avg_price": 0, "deposit": 0}] 형식의 JSON 배열만 보내세요.
             """
-            return self.client.models.generate_content(model='gemini-3.5-flash', contents=[prompt, img]).text
+            return self.client.models.generate_content(model='gemini-3.0-flash', contents=[prompt, img]).text
         except Exception as e:
             return f"이미지 분석 실패: {e}"
