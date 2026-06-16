@@ -27,7 +27,7 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # 필요 라이브러리 설치
-pip install -U yfinance pandas google-genai requests telegraph matplotlib numpy pillow
+pip install -U yfinance pandas google-genai requests telegraph matplotlib numpy pillow python-dotenv
 ```
 
 ### 3. 환경 변수 설정
