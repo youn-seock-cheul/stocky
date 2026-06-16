@@ -46,10 +46,15 @@ class MarketDataCollector:
         return {"indices": fetch(self.indices), "portfolio": fetch(self.my_portfolio, True)}
 
     def generate_portfolio_prediction_chart(self, output_path="chart.png"):
-        # plt.rc('font', family='Malgun Gothic') # For Windows
-         plt.rc('font', family='AppleGothic') # For Mac
-        # plt.rc('font', family='NanumBarunGothic') # For Linux / Colab        
-        plt.rc('axes', unicode_minus=False) # Fixes minus sign errors
+        # OS에 따른 한글 폰트 설정
+        if platform.system() == 'Windows':
+            rc('font', family='Malgun Gothic')
+        elif platform.system() == 'Darwin': # Mac
+            rc('font', family='AppleGothic')
+        else: # Linux (GitHub Actions 환경)
+            rc('font', family='NanumGothic')
+
+        plt.rcParams['axes.unicode_minus'] = False # 마이너스 기호 깨짐 방지
         
         plt.figure(figsize=(12, 6))
         for name, item in self.my_portfolio.items():
