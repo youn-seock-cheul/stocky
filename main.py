@@ -3,6 +3,7 @@ import sys
 import json
 import html
 import glob
+import shutil
 import copy
 import re
 import traceback
@@ -59,8 +60,12 @@ def run_daily_report():
         # [비전] 이미지 기반 포트폴리오 업데이트 (screenshots 폴더 내의 Screenshot_*.jpg/png 파일 처리)
         initial_portfolio = copy.deepcopy(collector.my_portfolio)
         screenshot_dir = "screenshots"
+        processed_dir = os.path.join(screenshot_dir, "processed")
 
         if os.path.exists(screenshot_dir):
+            if not os.path.exists(processed_dir):
+                os.makedirs(processed_dir)
+                
             # Screenshot_ 으로 시작하는 jpg, jpeg, png 파일 검색
             image_files_set = set()
             for ext in ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"]:
@@ -85,6 +90,13 @@ def run_daily_report():
                             print(f"Parsed portfolio list size: {len(portfolio_list)}")
                             collector.update_portfolio_from_list(portfolio_list)
                             print(f"🎯 포트폴리오 업데이트 완료: {os.path.basename(img_path)}")
+                            
+                            # 처리가 완료된 파일은 processed 폴더로 이동하여 다음 실행 시 제외
+                            dest_path = os.path.join(processed_dir, os.path.basename(img_path))
+                            if os.path.exists(dest_path):
+                                os.remove(dest_path)
+                            shutil.move(img_path, dest_path)
+
                         else:
                             print(f"⚠️ 경고: 추출된 데이터가 리스트 형식이 아닙니다: {portfolio_list}")
                     except json.JSONDecodeError as e:
@@ -98,9 +110,14 @@ def run_daily_report():
                     changes = []
                     for name, data in collector.my_portfolio.items():
                         if name not in initial_portfolio:
-                            changes.append(f"🆕 <b>{name}</b> (신규 추가)")
+                            changes.append(f"🆕 <b>{name}</b> (신규 추가: {data['avg_price']}원)")
                         elif initial_portfolio[name] != data:
-                            changes.append(f"🔄 <b>{name}</b> (정보 갱신)")
+                            old_price = initial_portfolio[name]['avg_price']
+                            new_price = data['avg_price']
+                            if old_price != new_price:
+                                changes.append(f"🔄 <b>{name}</b> (평단 변경: {old_price} -> {new_price})")
+                            else:
+                                changes.append(f"🔄 <b>{name}</b> (수량/금액 갱신)")
                     
                     if changes:
                         update_msg = "♻️ <b>잔고 동기화 완료</b>\n\n" + "\n".join(changes)
