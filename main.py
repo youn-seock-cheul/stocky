@@ -72,7 +72,8 @@ def run_daily_report():
                     print(f"📸 잔고 스크린샷 분석 중: {img_path}...")
                     extracted_data = analyzer.extract_portfolio_from_image(img_path)
                     
-                    if '"error":' in extracted_data:
+                    # AI 응답에 'error' 키가 포함되어 있으면 실패로 간주
+                    if '"error":' in extracted_data or not extracted_data.strip().startswith("["):
                         print(f"❌ 이미지 분석 스킵 (AI 오류): {extracted_data}")
                         continue
 
@@ -200,11 +201,12 @@ def run_daily_report():
         # 최종 결과 확인
         if response.status_code == 200:
             print("✅ 모든 리포트 및 차트 전송 완료!")
-        elif response.status_code == 404:
+        elif response and response.status_code == 404:
             print("❌ 전송 실패: 404 - 텔레그램 토큰(TELEGRAM_TOKEN)이 올바르지 않거나 봇을 찾을 수 없습니다.")
-            print("💡 .env 파일의 토큰 값을 다시 확인해 주세요.")
+            print("💡 GitHub Secrets 또는 .env 파일의 토큰 값을 다시 확인해 주세요.")
         else:
-            print(f"❌ 전송 실패: {response.status_code} - {response.text}")
+            status = response.status_code if response else "N/A"
+            print(f"❌ 전송 실패: {status} - 통신 오류 발생")
 
     except Exception as e:
         error_trace = traceback.format_exc()
