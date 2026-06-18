@@ -3,6 +3,7 @@ import json
 import re
 import numpy as np
 import yfinance as yf
+import FinanceDataReader as fdr
 import pandas as pd
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
@@ -103,11 +104,24 @@ class MarketDataCollector:
             res = {}
             for name, item in target.items():
                 ticker = item["ticker"] if is_p else item
-                # 이동평균 및 RSI 계산의 정확도를 위해 1년치 데이터 수집
-                data = yf.Ticker(ticker).history(period="1y")
+                
+                # 국내 종목(.KS, .KQ)은 FinanceDataReader 사용, 그 외는 yfinance 사용
+                try:
+                    if ticker.endswith('.KS') or ticker.endswith('.KQ'):
+                        symbol = ticker.split('.')[0]
+                        # 1년 전부터 오늘까지 데이터 수집
+                        start_date = (pd.Timestamp.now() - pd.DateOffset(years=1)).strftime('%Y-%m-%d')
+                        data = fdr.DataReader(symbol, start=start_date)
+                    else:
+                        data = yf.Ticker(ticker).history(period="1y")
+                except Exception as e:
+                    print(f"❌ '{name}'({ticker}) 데이터 수집 중 오류: {e}")
+                    data = pd.DataFrame()
+
                 if not data.empty:
                     # 1차원 데이터 보장 및 인덱스 유지
-                    close = pd.Series(data['Close'].to_numpy().flatten(), index=data.index)
+                    close_col = 'Close' if 'Close' in data.columns else 'close' # fdr은 대소문자 섞일 수 있음
+                    close = pd.Series(data[close_col].to_numpy().flatten(), index=data.index)
                     rsi = self._calculate_rsi(close)
                     macd, sig = self._calculate_macd(close)
                     upper_bb, mid_bb, lower_bb = self._calculate_bollinger_bands(close)
@@ -142,10 +156,21 @@ class MarketDataCollector:
     def generate_portfolio_prediction_chart(self, output_path="chart.png"):
         plt.figure(figsize=(12, 6))
         for name, item in self.my_portfolio.items():
-            data = yf.download(item['ticker'], period="1mo", interval="1h", progress=False)
+            ticker = item['ticker']
+            try:
+                if ticker.endswith('.KS') or ticker.endswith('.KQ'):
+                    symbol = ticker.split('.')[0]
+                    start_date = (pd.Timestamp.now() - pd.DateOffset(months=1)).strftime('%Y-%m-%d')
+                    data = fdr.DataReader(symbol, start=start_date)
+                else:
+                    data = yf.download(ticker, period="1mo", interval="1h", progress=False)
+            except:
+                data = pd.DataFrame()
+
             if not data.empty:
                 # 1차원 데이터 보장 (차원 오류 방지)
-                close_vals = data['Close'].to_numpy().flatten()
+                close_col = 'Close' if 'Close' in data.columns else 'close'
+                close_vals = data[close_col].to_numpy().flatten()
                 norm = (close_vals / close_vals[0] - 1) * 100
                 x = np.arange(len(norm)); slope, intercept = np.polyfit(x, norm, 1)
                 

@@ -62,23 +62,30 @@ def run_daily_report():
 
         if os.path.exists(screenshot_dir):
             # Screenshot_ 으로 시작하는 jpg, jpeg, png 파일 검색
-            image_files = []
+            image_files_set = set()
             for ext in ["jpg", "jpeg", "png", "JPG", "JPEG", "PNG"]:
-                image_files.extend(glob.glob(os.path.join(screenshot_dir, f"Screenshot_*.{ext}")))
+                image_files_set.update(glob.glob(os.path.join(screenshot_dir, f"Screenshot_*.{ext}")))
             
-            if image_files:
-                image_files.sort()  # 파일명(날짜/시간) 순으로 정렬하여 순차 업데이트
+            if image_files_set:
+                image_files = sorted(list(image_files_set))
                 for img_path in image_files:
                     print(f"📸 잔고 스크린샷 분석 중: {img_path}...")
                     extracted_data = analyzer.extract_portfolio_from_image(img_path)
-                    print(f"Raw extracted data from Vision: {extracted_data}") # Vision 모델 원본 출력
+                    
+                    if '"error":' in extracted_data:
+                        print(f"❌ 이미지 분석 스킵 (AI 오류): {extracted_data}")
+                        continue
+
                     clean_json = extracted_data.strip().replace("```json", "").replace("```", "").strip()
                     print(f"Clean JSON for parsing: {clean_json}") # 파싱 전 정리된 JSON
                     try:
                         portfolio_list = json.loads(clean_json)
-                        print(f"Parsed portfolio list: {portfolio_list}") # JSON 파싱 결과
-                        collector.update_portfolio_from_list(portfolio_list)
-                        print(f"🎯 포트폴리오 업데이트 완료: {os.path.basename(img_path)}")
+                        if isinstance(portfolio_list, list):
+                            print(f"Parsed portfolio list size: {len(portfolio_list)}")
+                            collector.update_portfolio_from_list(portfolio_list)
+                            print(f"🎯 포트폴리오 업데이트 완료: {os.path.basename(img_path)}")
+                        else:
+                            print(f"⚠️ 경고: 추출된 데이터가 리스트 형식이 아닙니다: {portfolio_list}")
                     except json.JSONDecodeError as e:
                         print(f"❌ 포트폴리오 JSON 파싱 실패 ({img_path}): {e}")
                         print(f"  실패한 JSON 내용: {clean_json}")
@@ -193,6 +200,9 @@ def run_daily_report():
         # 최종 결과 확인
         if response.status_code == 200:
             print("✅ 모든 리포트 및 차트 전송 완료!")
+        elif response.status_code == 404:
+            print("❌ 전송 실패: 404 - 텔레그램 토큰(TELEGRAM_TOKEN)이 올바르지 않거나 봇을 찾을 수 없습니다.")
+            print("💡 .env 파일의 토큰 값을 다시 확인해 주세요.")
         else:
             print(f"❌ 전송 실패: {response.status_code} - {response.text}")
 

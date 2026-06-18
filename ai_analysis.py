@@ -3,10 +3,21 @@ import PIL.Image
 import time
 import re
 import json
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 class MarketAnalyzer:
     def __init__(self, api_key):
         self.client = genai.Client(api_key=api_key)
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        retry=retry_if_exception_type(Exception),
+        reraise=True
+    )
+    def _safe_generate_content(self, model, contents):
+        """지수 백오프를 적용한 안전한 AI 호출"""
+        return self.client.models.generate_content(model=model, contents=contents)
 
     def generate_analysis(self, market_data, report_type="opening", trade_info=None):
         indices_summary = "".join([f"- {n}: {i['price']} ({i['change_pct']}% / BB신호: {i.get('bb_signal')})\n" for n, i in market_data.get('indices', {}).items()])
@@ -68,7 +79,7 @@ class MarketAnalyzer:
 
         for model_name in models_to_try:
             try:
-                analysis_result = self.client.models.generate_content(model=model_name, contents=prompt).text
+                analysis_result = self._safe_generate_content(model=model_name, contents=prompt).text
                 break
             except Exception as e:
                 if "API_KEY_INVALID" in str(e) or "400" in str(e):
@@ -110,7 +121,7 @@ class MarketAnalyzer:
             
             try:
                 summarization_model = 'gemini-2.0-flash' # 최신 모델 권장
-                new_summary_response = self.client.models.generate_content(model=summarization_model, contents=summarize_prompt).text
+                new_summary_response = self._safe_generate_content(model=summarization_model, contents=summarize_prompt).text
                 current_summary = new_summary_response.strip()
                 
                 if details:
@@ -135,9 +146,9 @@ class MarketAnalyzer:
             2. ticker: 6자리숫자.KS(코스피) 또는 .KQ(코스닥)
             3. avg_price: 매입단가 (숫자만)
             4. deposit: 매입금액 (숫자만)
-            결과는 반드시 [{"name": "...", "ticker": "...", "avg_price": 0, "deposit": 0}] 형식의 JSON 배열만 보내세요.
+            결과는 반드시 다른 설명 없이 [{"name": "...", "ticker": "...", "avg_price": 0, "deposit": 0}] 형식의 JSON 배열만 보내세요.
             """
-            response = self.client.models.generate_content(model='gemini-3.5-flash', contents=[prompt, img])
+            response = self._safe_generate_content(model='gemini-3.5-flash', contents=[prompt, img])
             return self._validate_and_clean_json(response.text)
         except Exception as e:
             return json.dumps({"error": f"이미지 분석 실패: {str(e)}"})
