@@ -8,10 +8,6 @@ import pandas as pd
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 
-# 마이너스 기호 깨짐 방지
-plt.rcParams['axes.unicode_minus'] = False 
-
-
 class MarketDataCollector:
     def __init__(self):
         self.portfolio_file = "portfolio.json"
