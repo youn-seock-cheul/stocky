@@ -99,7 +99,7 @@ class MarketDataCollector:
         return round((rsi * 0.4) + (momentum_score * 0.6), 2)
 
     def get_recent_data(self, days=30):
-        self.__init__()
+        self._setup_font()
         sentiment_scores = []
         def fetch(target, is_p=False):
             res = {}
@@ -155,7 +155,7 @@ class MarketDataCollector:
         return {"indices": indices_data, "portfolio": portfolio_data, "market_sentiment": avg_sentiment}
 
     def generate_portfolio_prediction_chart(self, output_path="chart.png"):
-        self.__init__()
+        self._setup_font()
         plt.figure(figsize=(12, 6))
         for name, item in self.my_portfolio.items():
             ticker = item['ticker']
