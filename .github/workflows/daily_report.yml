@@ -67,6 +67,13 @@ jobs:
           TRADE_TICKER: ${{ github.event.inputs.ticker }}
           TRADE_REASON: ${{ github.event.inputs.reason }}
         run: |
+          echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> .env
+          echo "TELEGRAM_TOKEN=$TELEGRAM_TOKEN" >> .env
+          echo "TELEGRAM_CHAT_ID=$TELEGRAM_CHAT_ID" >> .env
+          echo "TRADE_CATEGORY=$TRADE_CATEGORY" >> .env
+          echo "TRADE_ACTION=$TRADE_ACTION" >> .env
+          echo "TRADE_TICKER=$TRADE_TICKER" >> .env
+          echo "TRADE_REASON=$TRADE_REASON" >> .env
           python main.py
 
       - name: Commit and push changes
