@@ -8,14 +8,6 @@ import pandas as pd
 import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 
-# OS별 한글 폰트 설정
-if platform.system() == 'Windows':
-    rc('font', family='Malgun Gothic')
-elif platform.system() == 'Darwin': # Mac
-    rc('font', family='AppleGothic')
-else: # Linux (Ubuntu 등)
-    rc('font', family='NanumGothic')
-
 # 마이너스 기호 깨짐 방지
 plt.rcParams['axes.unicode_minus'] = False 
 
@@ -111,6 +103,7 @@ class MarketDataCollector:
         return round((rsi * 0.4) + (momentum_score * 0.6), 2)
 
     def get_recent_data(self, days=30):
+        self.__init__()
         sentiment_scores = []
         def fetch(target, is_p=False):
             res = {}
