@@ -155,6 +155,7 @@ class MarketDataCollector:
         return {"indices": indices_data, "portfolio": portfolio_data, "market_sentiment": avg_sentiment}
 
     def generate_portfolio_prediction_chart(self, output_path="chart.png"):
+        self.__init__()
         plt.figure(figsize=(12, 6))
         for name, item in self.my_portfolio.items():
             ticker = item['ticker']
