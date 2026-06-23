@@ -17,13 +17,21 @@ class MarketDataCollector:
 
     def _setup_font(self):
         """차트 한글 깨짐 방지를 위한 폰트 설정"""
-        font_list = ['Malgun Gothic', 'AppleGothic', 'NanumGothic', 'UnDotum', 'Arial Unicode MS']       
-         print("설치된 전체 폰트 수:", len(font_list))
-        for font in font_list:
-            if font in [f.name for f in fm.fontManager.ttflist]:
-                plt.rcParams['font.family'] = font
-                print("적용된 폰트 :", {font})
-                break            
+        font_list = [f.name for f in fm.fontManager.ttflist]
+        print(f"설치된 전체 폰트 수: {len(font_list)}")
+        print("사용 가능한 폰트 일부:", font_list[:10]) # 폰트 이름 목록이 너무 길어 상위 10개만 먼저 출력합니다.
+        
+        applied_font = None
+        font_candidate = ['Malgun Gothic', 'AppleGothic', 'NanumGothic', 'UnDotum', 'Arial Unicode MS']
+        for font in font_candidate:
+            if font in font_list:
+                plt.rc('font', family=font)
+                applied_font = font
+                break
+
+        print(f"적용된 폰트: {applied_font}")
+
+        # 유니코드 마이너스 부호 깨짐 방지
         plt.rcParams['axes.unicode_minus'] = False
 
     def load_portfolio(self):
