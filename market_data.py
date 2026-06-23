@@ -24,12 +24,11 @@ class MarketDataCollector:
                 break            
         plt.rcParams['axes.unicode_minus'] = False
 
-        # # --- [추가해야 할 부분] ---
-        # # 현재 적용된 폰트 이름 가져오기
-        # current_font = plt.rcParams['font.family'][0]
+        # 기기에 설치된 모든 폰트 중 'Nanum' 또는 'Noto'가 들어간 폰트 경로 검색
+        font_list = fm.fontManager.ttflist
+        korean_fonts = [f.fname for f in font_list if 'Nanum' in f.name or 'Noto' in f.name]
 
-        # # 범례 객체 생성 시 폰트 정보 명시
-        # plt.legend(prop={'family': current_font}) 
+        print(korean_fonts)
 
     def load_portfolio(self):
         # 로드 실패 시 사용할 기본 데이터 정의
