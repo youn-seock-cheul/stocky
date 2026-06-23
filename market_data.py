@@ -19,8 +19,11 @@ class MarketDataCollector:
         """차트 한글 깨짐 방지를 위한 폰트 설정"""
         font_list = ['Malgun Gothic', 'AppleGothic', 'NanumGothic', 'Noto Sans CJK KR', 'Arial Unicode MS']
         for font in font_list:
+            # if font in [f.name for f in fm.fontManager.ttflist]:
+            #     plt.rcParams['font.family'] = font
+            #     break            
             if font in [f.name for f in fm.fontManager.ttflist]:
-                plt.rcParams['font.family'] = font
+                plt.rc('font', family=font)  # rcParams 대신 plt.rc 사용
                 break
         plt.rcParams['axes.unicode_minus'] = False
 
