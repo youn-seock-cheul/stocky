@@ -17,18 +17,13 @@ class MarketDataCollector:
 
     def _setup_font(self):
         """차트 한글 깨짐 방지를 위한 폰트 설정"""
-        font_list = ['Malgun Gothic', 'AppleGothic', 'NanumGothic', 'Noto Sans CJK KR', 'Arial Unicode MS']
+        font_list = ['Malgun Gothic', 'AppleGothic', 'NanumGothic', 'UnDotum', 'Arial Unicode MS']        
         for font in font_list:
             if font in [f.name for f in fm.fontManager.ttflist]:
                 plt.rcParams['font.family'] = font
+                print("적용된 폰트 :", {font})
                 break            
         plt.rcParams['axes.unicode_minus'] = False
-
-        # 기기에 설치된 모든 폰트 중 'Nanum' 또는 'Noto'가 들어간 폰트 경로 검색
-        font_list = fm.fontManager.ttflist
-        korean_fonts = [f.fname for f in font_list if 'Nanum' in f.name or 'Noto' in f.name]
-
-        print(korean_fonts)
 
     def load_portfolio(self):
         # 로드 실패 시 사용할 기본 데이터 정의
@@ -160,8 +155,6 @@ class MarketDataCollector:
         return {"indices": indices_data, "portfolio": portfolio_data, "market_sentiment": avg_sentiment}
 
     def generate_portfolio_prediction_chart(self, output_path="chart.png"):          
-        current_font = plt.rcParams['font.family'][0]
-        
         plt.figure(figsize=(12, 6))
         for name, item in self.my_portfolio.items():
             ticker = item['ticker']
@@ -195,7 +188,7 @@ class MarketDataCollector:
                 
                 plt.plot(f_x, f_y, linestyle='--', color=p[0].get_color())
                 plt.fill_between(f_x, f_y - 2*std, f_y + 2*std, color=color, alpha=0.1)
-        plt.title("Portfolio Prediction (Red: Up, Blue: Down)"); plt.legend(prop={'family': current_font}); plt.grid(True, alpha=0.3)
+        plt.title("Portfolio Prediction (Red: Up, Blue: Down)"); plt.legend(); plt.grid(True, alpha=0.3)
         plt.savefig(output_path); plt.close()
 
     def generate_sentiment_gauge(self, score, output_path="sentiment.png"):
