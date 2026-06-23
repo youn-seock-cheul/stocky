@@ -63,10 +63,5 @@
         "ticker": "402340.KS",
         "avg_price": 1981712.0,
         "deposit": 1981712.0
-    },
-    "SK텔레콤": {
-        "ticker": "017670.KS",
-        "avg_price": 1981712.0,
-        "deposit": 1973886.0
     }
 }
