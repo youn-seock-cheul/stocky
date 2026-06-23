@@ -19,20 +19,17 @@ class MarketDataCollector:
         """차트 한글 깨짐 방지를 위한 폰트 설정"""
         font_list = ['Malgun Gothic', 'AppleGothic', 'NanumGothic', 'Noto Sans CJK KR', 'Arial Unicode MS']
         for font in font_list:
-            # if font in [f.name for f in fm.fontManager.ttflist]:
-            #     plt.rcParams['font.family'] = font
-            #     break            
             if font in [f.name for f in fm.fontManager.ttflist]:
-                plt.rc('font', family=font)  # rcParams 대신 plt.rc 사용
-                break
+                plt.rcParams['font.family'] = font
+                break            
         plt.rcParams['axes.unicode_minus'] = False
 
-        # --- [추가해야 할 부분] ---
-        # 현재 적용된 폰트 이름 가져오기
-        current_font = plt.rcParams['font.family'][0]
+        # # --- [추가해야 할 부분] ---
+        # # 현재 적용된 폰트 이름 가져오기
+        # current_font = plt.rcParams['font.family'][0]
 
-        # 범례 객체 생성 시 폰트 정보 명시
-        plt.legend(prop={'family': current_font}) 
+        # # 범례 객체 생성 시 폰트 정보 명시
+        # plt.legend(prop={'family': current_font}) 
 
     def load_portfolio(self):
         # 로드 실패 시 사용할 기본 데이터 정의
@@ -163,7 +160,9 @@ class MarketDataCollector:
         
         return {"indices": indices_data, "portfolio": portfolio_data, "market_sentiment": avg_sentiment}
 
-    def generate_portfolio_prediction_chart(self, output_path="chart.png"):       
+    def generate_portfolio_prediction_chart(self, output_path="chart.png"):          
+        current_font = plt.rcParams['font.family'][0]
+        
         plt.figure(figsize=(12, 6))
         for name, item in self.my_portfolio.items():
             ticker = item['ticker']
@@ -197,7 +196,7 @@ class MarketDataCollector:
                 
                 plt.plot(f_x, f_y, linestyle='--', color=p[0].get_color())
                 plt.fill_between(f_x, f_y - 2*std, f_y + 2*std, color=color, alpha=0.1)
-        plt.title("Portfolio Prediction (Red: Up, Blue: Down)"); plt.legend(); plt.grid(True, alpha=0.3)
+        plt.title("Portfolio Prediction (Red: Up, Blue: Down)"); plt.legend(prop={'family': current_font}); plt.grid(True, alpha=0.3)
         plt.savefig(output_path); plt.close()
 
     def generate_sentiment_gauge(self, score, output_path="sentiment.png"):
