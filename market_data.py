@@ -17,7 +17,8 @@ class MarketDataCollector:
 
     def _setup_font(self):
         """차트 한글 깨짐 방지를 위한 폰트 설정"""
-        font_list = ['Malgun Gothic', 'AppleGothic', 'NanumGothic', 'UnDotum', 'Arial Unicode MS']        
+        font_list = ['Malgun Gothic', 'AppleGothic', 'NanumGothic', 'UnDotum', 'Arial Unicode MS']       
+         print("설치된 전체 폰트 수:", len(font_list))
         for font in font_list:
             if font in [f.name for f in fm.fontManager.ttflist]:
                 plt.rcParams['font.family'] = font
