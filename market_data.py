@@ -24,6 +24,13 @@ class MarketDataCollector:
                 break
         plt.rcParams['axes.unicode_minus'] = False
 
+   `    # --- [추가해야 할 부분] ---
+        # 현재 적용된 폰트 이름 가져오기
+        current_font = plt.rcParams['font.family'][0]
+
+        # 범례 객체 생성 시 폰트 정보 명시
+        plt.legend(prop={'family': current_font}) 
+
     def load_portfolio(self):
         # 로드 실패 시 사용할 기본 데이터 정의
         default_portfolio = {
@@ -98,8 +105,7 @@ class MarketDataCollector:
         
         return round((rsi * 0.4) + (momentum_score * 0.6), 2)
 
-    def get_recent_data(self, days=30):
-        self._setup_font()
+    def get_recent_data(self, days=30):       
         sentiment_scores = []
         def fetch(target, is_p=False):
             res = {}
@@ -154,8 +160,7 @@ class MarketDataCollector:
         
         return {"indices": indices_data, "portfolio": portfolio_data, "market_sentiment": avg_sentiment}
 
-    def generate_portfolio_prediction_chart(self, output_path="chart.png"):
-        self._setup_font()
+    def generate_portfolio_prediction_chart(self, output_path="chart.png"):       
         plt.figure(figsize=(12, 6))
         for name, item in self.my_portfolio.items():
             ticker = item['ticker']
