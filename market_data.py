@@ -24,7 +24,7 @@ class MarketDataCollector:
                 break
         plt.rcParams['axes.unicode_minus'] = False
 
-   `    # --- [추가해야 할 부분] ---
+        # --- [추가해야 할 부분] ---
         # 현재 적용된 폰트 이름 가져오기
         current_font = plt.rcParams['font.family'][0]
 
