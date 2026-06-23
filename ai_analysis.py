@@ -74,7 +74,7 @@ class MarketAnalyzer:
 
         prompt = f"{system_context}\n\n{data_context}\n\n{task_instruction}\n\n{format_instruction}"
 
-        models_to_try = ['gemini-3.5-flash', 'gemini-2.5-flash']
+        models_to_try = ['gemini-3.5-flash', 'gemini-3.1-flash', 'gemini-3.0-flash', 'gemini-2.5-flash']
         analysis_result = None
 
         for model_name in models_to_try:
@@ -148,7 +148,7 @@ class MarketAnalyzer:
             4. deposit: 매입금액 (숫자만)
             결과는 반드시 다른 설명 없이 [{"name": "...", "ticker": "...", "avg_price": 0, "deposit": 0}] 형식의 JSON 배열만 보내세요.
             """
-            response = self._safe_generate_content(model='gemini-3.5-flash', contents=[prompt, img])
+            response = self._safe_generate_content(model='gemini-3.1-flash', contents=[prompt, img])
             return self._validate_and_clean_json(response.text)
         except Exception as e:
             return json.dumps({"error": f"이미지 분석 실패: {str(e)}"})
