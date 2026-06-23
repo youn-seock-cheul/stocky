@@ -281,3 +281,22 @@ class MarketDataCollector:
                 json.dump(self.my_portfolio, f, ensure_ascii=False, indent=4)
         except OSError as e:
             print(f"❌ 포트폴리오 파일 저장 중 시스템 오류: {e}")
+            
+    def get_specific_ticker_data(self, ticker):
+        """특정 종목 한 개의 최신 데이터 수집"""
+        try:
+            t = yf.Ticker(ticker)
+            data = t.history(period="10d") # 기술적 분석을 위해 10일치 수집
+            if not data.empty:
+                current_price = float(data['Close'].iloc[-1])
+                prev_price = float(data['Close'].iloc[-2])
+                change_pct = (current_price - prev_price) / prev_price * 100
+                return {
+                    "name": ticker,
+                    "price": round(current_price, 2),
+                    "change_pct": round(change_pct, 2),
+                    "history": data['Close'].tail(5).to_dict() # 최근 5일 종가 흐름
+                }
+        except Exception as e:
+            print(f"❌ {ticker} 데이터 수집 실패: {e}")
+        return None
