@@ -15,14 +15,14 @@
         "deposit": 52287216.0
     },
     "RISE AI전력인프라": {
-        "ticker": "477610.KS",
-        "avg_price": 22569.0,
-        "deposit": 49503966.0
+        "ticker": "481600.KS",
+        "avg_price": 22557.0,
+        "deposit": 8030292.0
     },
     "KODEX AI반도체TOP2플러스": {
-        "ticker": "469390.KS",
-        "avg_price": 57568.0,
-        "deposit": 46054400.0
+        "ticker": "475250.KS",
+        "avg_price": 57709.0,
+        "deposit": 90660839.0
     },
     "TIGER 2차전지TOP10": {
         "ticker": "385530.KS",
@@ -61,8 +61,8 @@
     },
     "SK스퀘어": {
         "ticker": "402340.KS",
-        "avg_price": 1981712.0,
-        "deposit": 1981712.0
+        "avg_price": 1822048.0,
+        "deposit": 5375558.0
     },
     "SNK": {
         "ticker": "SNK",
@@ -73,5 +73,25 @@
         "ticker": "SSG",
         "avg_price": 11.4575,
         "deposit": 0.0
+    },
+    "SOXL 디렉시온 반도체 3X ETF": {
+        "ticker": "SOXL",
+        "avg_price": 236.8699,
+        "deposit": 10550594.0
+    },
+    "삼성전기": {
+        "ticker": "009150.KS",
+        "avg_price": 866436.0,
+        "deposit": 4332180.0
+    },
+    "NAVER": {
+        "ticker": "035420.KS",
+        "avg_price": 203177.0,
+        "deposit": 5892133.0
+    },
+    "삼성에스디에스": {
+        "ticker": "018260.KS",
+        "avg_price": 195872.0,
+        "deposit": 5680288.0
     }
 }
