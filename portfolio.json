@@ -17,10 +17,10 @@
     "RISE AI전력인프라": {
         "ticker": "488340.KS",
         "avg_price": 22569.0,
-        "deposit": 49513766.0
+        "deposit": 49526156.0
     },
     "KODEX AI반도체TOP2플러스": {
-        "ticker": "465560.KS",
+        "ticker": "475140.KS",
         "avg_price": 57568.0,
         "deposit": 46054400.0
     },
@@ -30,7 +30,7 @@
         "deposit": 7077000.0
     },
     "KoAct 글로벌양자컴퓨팅액티브": {
-        "ticker": "449060.KS",
+        "ticker": "452790.KS",
         "avg_price": 30773.0,
         "deposit": 6308465.0
     },
@@ -47,12 +47,12 @@
     "삼성전자": {
         "ticker": "005930.KS",
         "avg_price": 344861.0,
-        "deposit": 4577243.0
+        "deposit": 4483193.0
     },
     "삼성전기우": {
         "ticker": "009155.KS",
         "avg_price": 951322.0,
-        "deposit": 2850630.0
+        "deposit": 2853966.0
     },
     "LS ELECTRIC": {
         "ticker": "010120.KS",
@@ -62,7 +62,7 @@
     "SK스퀘어": {
         "ticker": "402340.KS",
         "avg_price": 1981712.0,
-        "deposit": 1962174.0
+        "deposit": 1981712.0
     },
     "SNK": {
         "ticker": "SNK",
