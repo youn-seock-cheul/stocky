@@ -20,7 +20,7 @@
         "deposit": 8030292.0
     },
     "KODEX AI반도체TOP2플러스": {
-        "ticker": "475260.KS",
+        "ticker": "475140.KS",
         "avg_price": 57709.0,
         "deposit": 90660839.0
     },
@@ -30,7 +30,7 @@
         "deposit": 7077000.0
     },
     "KoAct 글로벌양자컴퓨팅액티브": {
-        "ticker": "449060.KS",
+        "ticker": "452790.KS",
         "avg_price": 30773.0,
         "deposit": 6308465.0
     },
@@ -51,8 +51,8 @@
     },
     "삼성전기우": {
         "ticker": "009155.KS",
-        "avg_price": 866436.0,
-        "deposit": 4332180.0
+        "avg_price": 917752.0,
+        "deposit": 3211194.0
     },
     "LS ELECTRIC": {
         "ticker": "010120.KS",
@@ -62,7 +62,7 @@
     "SK스퀘어": {
         "ticker": "402340.KS",
         "avg_price": 1822048.0,
-        "deposit": 53755583.0
+        "deposit": 5375553.0
     },
     "SNK": {
         "ticker": "SNK",
@@ -120,7 +120,7 @@
         "deposit": 12717253.0
     },
     "SOL SK하이닉스단일종목레버리지": {
-        "ticker": "469140.KS",
+        "ticker": "453980.KS",
         "avg_price": 14922.0,
         "deposit": 10490166.0
     },
