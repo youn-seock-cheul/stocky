@@ -15,14 +15,14 @@
         "deposit": 52287216.0
     },
     "RISE AI전력인프라": {
-        "ticker": "482480.KS",
-        "avg_price": 22569.0,
-        "deposit": 49526166.0
+        "ticker": "481570.KS",
+        "avg_price": 22557.0,
+        "deposit": 8030292.0
     },
     "KODEX AI반도체TOP2플러스": {
-        "ticker": "465560.KS",
-        "avg_price": 57568.0,
-        "deposit": 46054400.0
+        "ticker": "475260.KS",
+        "avg_price": 57709.0,
+        "deposit": 90660839.0
     },
     "TIGER 2차전지TOP10": {
         "ticker": "385530.KS",
@@ -41,13 +41,13 @@
     },
     "SK하이닉스": {
         "ticker": "000660.KS",
-        "avg_price": 2679513.0,
-        "deposit": 2679513.0
+        "avg_price": 1487337.0,
+        "deposit": 13107716.0
     },
     "삼성전자": {
         "ticker": "005930.KS",
-        "avg_price": 351171.0,
-        "deposit": 3511710.0
+        "avg_price": 265047.0,
+        "deposit": 2120376.0
     },
     "삼성전기우": {
         "ticker": "009155.KS",
@@ -61,8 +61,8 @@
     },
     "SK스퀘어": {
         "ticker": "402340.KS",
-        "avg_price": 1981712.0,
-        "deposit": 1981712.0
+        "avg_price": 1822048.0,
+        "deposit": 53755583.0
     },
     "SNK": {
         "ticker": "SNK",
@@ -115,12 +115,12 @@
         "deposit": 0.0
     },
     "ACE 삼성전자단일종목레버리지": {
-        "ticker": "467550.KS",
+        "ticker": "449060.KS",
         "avg_price": 17269.0,
-        "deposit": 12727253.0
+        "deposit": 12717253.0
     },
     "SOL SK하이닉스단일종목레버리지": {
-        "ticker": "469030.KS",
+        "ticker": "450910.KS",
         "avg_price": 14922.0,
         "deposit": 10490166.0
     },
@@ -150,18 +150,18 @@
         "deposit": 0.0
     },
     "ACE 삼성전단일종목레버리지": {
-        "ticker": "461740.KS",
+        "ticker": "462530.KS",
         "avg_price": 18967.0,
         "deposit": 17089267.0
     },
     "LG이노텍": {
         "ticker": "011070.KS",
         "avg_price": 646863.0,
-        "deposit": 1293726.0
+        "deposit": 1302804.0
     },
     "현대오토에버": {
         "ticker": "307950.KS",
         "avg_price": 471866.0,
-        "deposit": 471866.0
+        "deposit": 487556.0
     }
 }
