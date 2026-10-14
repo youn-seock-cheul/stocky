@@ -30,7 +30,7 @@
         "deposit": 7077000.0
     },
     "KoAct 글로벌양자컴퓨팅액티브": {
-        "ticker": "449060.KS",
+        "ticker": "449030.KS",
         "avg_price": 30773.0,
         "deposit": 6308465.0
     },
@@ -47,7 +47,7 @@
     "삼성전자": {
         "ticker": "005930.KS",
         "avg_price": 265047.0,
-        "deposit": 2120376.0
+        "deposit": 2063769.0
     },
     "삼성전기우": {
         "ticker": "009155.KS",
@@ -77,7 +77,7 @@
     "SOXL 디렉시온 반도체 3X ETF": {
         "ticker": "SOXL",
         "avg_price": 236.8699,
-        "deposit": 10162590.0
+        "deposit": 10160000.0
     },
     "삼성전기": {
         "ticker": "009150.KS",
@@ -115,14 +115,14 @@
         "deposit": 0.0
     },
     "ACE 삼성전자단일종목레버리지": {
-        "ticker": "449080.KS",
+        "ticker": "449060.KS",
         "avg_price": 17269.0,
-        "deposit": 12717253.0
+        "deposit": 9183291.0
     },
     "SOL SK하이닉스단일종목레버리지": {
-        "ticker": "453960.KS",
+        "ticker": "451450.KS",
         "avg_price": 14922.0,
-        "deposit": 10490166.0
+        "deposit": 8352703.0
     },
     "그래닛셔어즈 스페이스X -2X ETF": {
         "ticker": "SNK",
@@ -150,9 +150,9 @@
         "deposit": 0.0
     },
     "ACE 삼성전단일종목레버리지": {
-        "ticker": "462530.KS",
-        "avg_price": 18967.0,
-        "deposit": 17089267.0
+        "ticker": "449080.KS",
+        "avg_price": 17919.0,
+        "deposit": 11776761.0
     },
     "LG이노텍": {
         "ticker": "011070.KS",
