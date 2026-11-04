@@ -15,7 +15,7 @@
         "deposit": 52287216.0
     },
     "RISE AI전력인프라": {
-        "ticker": "481540.KS",
+        "ticker": "488340.KS",
         "avg_price": 22557.0,
         "deposit": 8030292.0
     },
@@ -30,7 +30,7 @@
         "deposit": 7077000.0
     },
     "KoAct 글로벌양자컴퓨팅액티브": {
-        "ticker": "449060.KS",
+        "ticker": "455850.KS",
         "avg_price": 30773.0,
         "deposit": 6308465.0
     },
@@ -120,9 +120,9 @@
         "deposit": 12717253.0
     },
     "SOL SK하이닉스단일종목레버리지": {
-        "ticker": "450530.KS",
+        "ticker": "446770.KS",
         "avg_price": 14922.0,
-        "deposit": 10490166.0
+        "deposit": 10500166.0
     },
     "그래닛셔어즈 스페이스X -2X ETF": {
         "ticker": "SNK",
